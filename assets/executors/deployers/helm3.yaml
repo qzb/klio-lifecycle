@@ -1,0 +1,35 @@
+apiVersion: g2a-cli/v2.0
+kind: Deployer
+name: helm3
+schema:
+  type: object
+  required:
+    - name
+    - chartPath
+  properties:
+    name:
+      type: string
+    chartPath:
+      type: string
+    chartVersion:
+      type: string
+    namespace:
+      type: string
+    valuesFiles:
+      type: array
+      items:
+        type: string
+    values:
+      type: object
+      additionalProperties:
+        type: string
+    chartRepository:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+js: |
+  throw "not implemented"

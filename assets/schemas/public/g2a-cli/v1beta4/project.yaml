@@ -1,0 +1,21 @@
+title: Project
+type: object
+required:
+  - apiVersion
+  - kind
+properties:
+  apiVersion:
+    $ref: "./partials/api-version.yaml"
+  kind:
+    const: "Project"
+  name:
+    $ref: "./partials/name.yaml"
+  services:
+    $ref: "#/$defs/globs"
+  environments:
+    $ref: "#/$defs/globs"
+$defs:
+  globs:
+    type: array
+    items:
+      type: string

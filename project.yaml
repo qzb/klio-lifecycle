@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=assets/schemas/public/g2a-cli/v2.0/project.yaml
+apiVersion: g2a-cli/v2.0
+kind: Project
+name: cicd
+files:
+  - docs.yaml
+  - assets/executors/*/*.yaml
+tasks:
+  prepare:
+    - script:
+        path: '{{ .Project.Dir }}/scripts/prepare.sh'

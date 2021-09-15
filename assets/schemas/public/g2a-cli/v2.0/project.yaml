@@ -1,0 +1,83 @@
+title: Project
+description:
+type: object
+required:
+  - apiVersion
+  - kind
+  - name
+properties:
+  apiVersion:
+    $ref: './partials/api-version.yaml'
+  kind:
+    description: Determines type of the document.
+    const: 'Project'
+  name:
+    $ref: './partials/name.yaml'
+    examples:
+      - 'generic-api'
+  files:
+    description: 'List of the configuration files to load.'
+    oneOf:
+      - type: array
+        items:
+          oneOf:
+            - $ref: '#/$defs/glob'
+            - $ref: '#/$defs/gitGlob'
+      - $ref: '#/$defs/glob'
+  variables:
+    description: >
+      Definitions of the variables to use in the configuration files. Names are case-insensitive.
+    examples:
+      - name: value
+    type: object
+    patternProperties:
+      '^[a-zA-Z][a-zA-Z0-9]*$':
+        type: string
+  tasks:
+    description:
+      Definitions of the tasks used by commands "prepare", "test", "lint" and "run". These tasks may
+      be also specified in services definitions.
+    $ref: './partials/tasks.yaml'
+$defs:
+  glob:
+    description: >
+      Paths to files may include wildecards like "*" which matches single path segment.
+    examples:
+      - 'services/*/service.yaml'
+      - 'environments/*/environments.yaml'
+    type: string
+    minLength: 1
+  gitGlob:
+    type: object
+    additionalProperties: false
+    required:
+      - git
+    properties:
+      git:
+        description: >
+          Files may be also fetched from another git repository.
+        type: object
+        additionalProperties: false
+        required:
+          - url
+          - rev
+          - files
+        properties:
+          url:
+            examples:
+              - 'https://github.com/g2a-com/cicd'
+            type: string
+            minLength: 1
+          rev:
+            type: string
+            examples:
+              - main
+            minLength: 1
+          files:
+            examples:
+              - 'executors/*/*.yaml'
+            oneOf:
+              - type: array
+                items:
+                  $ref: '#/$defs/glob'
+              - $ref: '#/$defs/glob'

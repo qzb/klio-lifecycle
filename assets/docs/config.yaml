@@ -1,0 +1,12 @@
+theme: learn
+contentDir: ../../docs
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+params:
+  custom_css:
+    - css/terminal.css
+    - css/tab.css
+    - css/yaml-config.css
+    - css/theme-blue.css

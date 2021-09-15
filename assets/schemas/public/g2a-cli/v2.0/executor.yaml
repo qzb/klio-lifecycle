@@ -1,0 +1,50 @@
+title: Executor
+type: object
+required:
+  - apiVersion
+  - kind
+  - name
+  - js
+additionalProperties: false
+properties:
+  apiVersion:
+    $ref: './partials/api-version.yaml'
+  kind:
+    description: Determines type of the document.
+    examples:
+      - Builder
+    enum:
+      - Builder
+      - Deployer
+      - Tagger
+      - Pusher
+  name:
+    description: Name used to identify executor. Unique together with kind.
+    examples:
+      - docker
+    $ref: './partials/name.yaml'
+  schema:
+    description: JSON Schema defining format of the configuration for the executor.
+    examples:
+      - type: object
+        required:
+          - image
+        properties:
+          image:
+            type: string
+          context:
+            type: string
+    $ref: https://json-schema.org/draft/2019-09/schema
+  js:
+    description: Implementation of the executor.
+    examples:
+      - |
+        for (let tag of input.tags) {
+          let image = input.spec.image + ':' + tag
+          let context = input.spec.context || "."
+
+          exec("docker", [ 'build', context, '-t', image ])
+
+          output = image
+        }
+    type: string

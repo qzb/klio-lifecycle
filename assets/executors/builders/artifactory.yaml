@@ -1,0 +1,17 @@
+apiVersion: g2a-cli/v2.0
+kind: Builder
+name: artifactory
+schema:
+  type: object
+  required:
+    - source
+    - target
+  properties:
+    source:
+      type: string
+      minLength: 1
+    target:
+      type: string
+      minLength: 1
+js: |
+  throw "not implemented"

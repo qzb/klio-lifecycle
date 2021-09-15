@@ -1,0 +1,14 @@
+apiVersion: g2a-cli/v2.0
+kind: Tagger
+name: gitSha
+schema:
+  type: object
+  properties:
+    length:
+      type: integer
+      min: 1
+      max: 40
+js: |
+  let sha = exec('git', [ 'log', '-1', '--pretty=format:%H' ])
+  let tag = sha.slice(0, input.spec.length || 40)
+  output.push(tag)

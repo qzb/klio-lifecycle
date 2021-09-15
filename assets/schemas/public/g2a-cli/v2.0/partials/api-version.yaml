@@ -1,0 +1,2 @@
+description: Version of the configuration format.
+const: 'g2a-cli/v2.0'

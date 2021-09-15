@@ -1,0 +1,117 @@
+.comment {
+  color: #008000;
+}
+
+.key {
+  color: var(--MAIN-LINK-color);
+}
+
+.key.required {
+  font-weight: bold;
+}
+
+.value {
+  color: blue;
+}
+
+.example {
+  color: gray;
+  font-weight: 100;
+}
+
+.key,
+.value,
+.comment,
+.example {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+}
+
+.key,
+.value,
+.example {
+  white-space: nowrap;
+}
+
+.yaml-config table {
+  border-width: 0 1px 1px;
+  border-collapse: collapse;
+  background-image: linear-gradient(
+    0deg,
+    white 48.61%,
+    #eeeeee 48.61%,
+    #eeeeee 50%,
+    white 50%,
+    white 98.61%,
+    #eeeeee 98.61%,
+    #eeeeee 100%
+  );
+  background-size: 72px 72px;
+}
+
+.yaml-config td {
+  border-width: 0;
+  /* border-bottom: 1px solid #eee; */
+  padding: 0 !important;
+  vertical-align: top;
+}
+
+.yaml-config td:first-child {
+  border-width: 0 1px;
+  padding: 0 0.5em !important;
+}
+
+.yaml-config td:nth-child(2) {
+  padding: 0 0 0 0.5em !important;
+}
+
+.yaml-config tr.top td {
+  background-color: #eee;
+}
+
+.yaml-config tr.top .comment {
+  color: gray;
+}
+
+.yaml-config td:first-child {
+  white-space: nowrap;
+  padding-right: 10px;
+}
+
+.yaml-config td {
+  line-height: 36px;
+}
+
+.yaml-config tr:hover td {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.yaml-config code {
+  font-family: unset;
+  font-size: 85%;
+  border: 1px dotted gray;
+  border-radius: 3px;
+  padding: 0 0.2em;
+}
+
+.yaml-config em {
+  font-family: unset;
+  font-size: 85%;
+  border: 1px dotted gray;
+  border-radius: 3px;
+  padding: 0 0.2em;
+}
+
+.yaml-config a.anchor {
+  margin: 0;
+  /* position: relative; */
+  display: inline;
+  visibility: hidden;
+  top: -70px;
+}
+
+@media (max-width: 768px) {
+  a.anchor {
+    top: -10px;
+  }
+}

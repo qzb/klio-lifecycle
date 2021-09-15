@@ -1,0 +1,4 @@
+description: "Name of the object, unique within the kind."
+type: string
+minLength: 1
+pattern: "^[a-z][A-Za-z0-9_-]*$"

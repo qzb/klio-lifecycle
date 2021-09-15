@@ -1,0 +1,7 @@
+type: object
+additionalProperties: true
+required:
+  - releases
+properties:
+  releases:
+    $ref: './partials/results.yaml'

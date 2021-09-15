@@ -1,0 +1,9 @@
+{
+  "releases": [
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "generic-api-local"
+    }
+  ]
+}
