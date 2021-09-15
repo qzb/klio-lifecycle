@@ -8,14 +8,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/g2a-com/cicd/internal/blueprint/internal/scheme/transform"
 	"github.com/hashicorp/go-multierror"
 	"github.com/icza/dyno"
 	"github.com/qri-io/jsonschema"
 )
 
 func ToInternal(content interface{}) (interface{}, error) {
-	return transform.ToInternal(dyno.ConvertMapI2MapS(content)), nil
+	dyno.Delete(content, "apiVersion")
+	return dyno.ConvertMapI2MapS(content), nil
 }
 
 func Validate(apiVersion string, kind string, content interface{}) error {

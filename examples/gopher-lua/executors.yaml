@@ -1,0 +1,26 @@
+---
+apiVersion: g2a-cli/internal
+kind: Tagger
+name: dummy
+schema: '{}'
+script: |
+  table.insert(output, "tag1")
+  table.insert(output, "tag2")
+---
+apiVersion: g2a-cli/internal
+kind: Builder
+name: dummy
+schema: '{}'
+script: |
+  for _, tag in input.tags() do
+    table.insert(output, tag)
+  end
+---
+apiVersion: g2a-cli/internal
+kind: Pusher
+name: dummy
+schema: '{}'
+script: |
+  for _, artifact in input.artifacts() do
+    table.insert(output, artifact)
+  end

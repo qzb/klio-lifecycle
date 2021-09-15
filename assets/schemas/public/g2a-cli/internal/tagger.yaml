@@ -1,19 +1,21 @@
-title: Builder
+title: Executor
 type: object
+additionalProperties: false
 required:
   - apiVersion
   - kind
   - name
+  - schema
   - script
-additionalProperties: false
 properties:
   apiVersion:
     $ref: './partials/api-version.yaml'
   kind:
-    const: Builder
+    enum:
+      - Tagger
   name:
     $ref: './partials/name.yaml'
   schema:
-    $ref: https://json-schema.org/draft/2019-09/schema
+    type: string
   script:
     type: string

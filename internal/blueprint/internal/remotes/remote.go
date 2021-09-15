@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/exec"
+	"github.com/g2a-com/klio-lifecycle/internal/exec"
 	log "github.com/g2a-com/klio-logger-go"
 )
 

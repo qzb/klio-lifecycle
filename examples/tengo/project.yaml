@@ -1,0 +1,6 @@
+apiVersion: g2a-cli/internal
+kind: Project
+name: example-project
+files:
+  - glob: '*.yaml'
+variables: {}

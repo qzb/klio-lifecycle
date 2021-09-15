@@ -21,10 +21,6 @@ fi
     BASENAME=$(basename -s ".yaml" "$FILEPATH")
     KIND=`echo ${BASENAME:0:1} | tr  '[a-z]' '[A-Z]'`${BASENAME:1}
 
-    if [ "$KIND" = Index ]; then
-      continue
-    fi
-
     echo "\t\"$API_VERSION/$KIND\": []byte(\`"
     "$REPO_DIR/scripts/normalize-schema.mjs" $FILEPATH | sed -e 's/^/\t\t/;'
     echo "\t\`),"

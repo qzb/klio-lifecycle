@@ -1,0 +1,21 @@
+---
+apiVersion: g2a-cli/internal
+kind: Tagger
+name: dummy
+schema: '{}'
+script: |
+  output += ["tag1", "tag2"]
+---
+apiVersion: g2a-cli/internal
+kind: Builder
+name: dummy
+schema: '{}'
+script: |
+  output += input.tags
+---
+apiVersion: g2a-cli/internal
+kind: Pusher
+name: dummy
+schema: '{}'
+script: |
+  output += input.artifacts

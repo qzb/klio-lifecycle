@@ -1,7 +1,0 @@
-apiVersion: g2a-cli/v1beta4
-kind: Environment
-name: local
-deployServices:
-  - service
-variables:
-  Variable: variable value

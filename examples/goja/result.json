@@ -1,0 +1,38 @@
+{
+  "tags": [
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag1"
+    },
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag2"
+    }
+  ],
+  "artifacts": [
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag1"
+    },
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag2"
+    }
+  ],
+  "pushedArtifacts": [
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag1"
+    },
+    {
+      "service": "generic-api",
+      "entry": 0,
+      "result": "tag2"
+    }
+  ]
+}

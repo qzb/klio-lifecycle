@@ -65,7 +65,7 @@ $defs:
         properties:
           url:
             examples:
-              - 'https://github.com/g2a-com/cicd'
+              - 'https://github.com/g2a-com/klio-lifecycle'
             type: string
             minLength: 1
           rev:

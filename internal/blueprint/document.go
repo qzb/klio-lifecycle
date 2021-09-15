@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/blueprint/internal/scheme"
-	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/klio-lifecycle/internal/blueprint/internal/scheme"
+	"github.com/g2a-com/klio-lifecycle/internal/object"
 	"github.com/icza/dyno"
 )
 

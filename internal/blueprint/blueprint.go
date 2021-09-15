@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/g2a-com/cicd/internal/blueprint/internal/placeholders"
-	"github.com/g2a-com/cicd/internal/blueprint/internal/remotes"
-	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/klio-lifecycle/internal/blueprint/internal/placeholders"
+	"github.com/g2a-com/klio-lifecycle/internal/blueprint/internal/remotes"
+	"github.com/g2a-com/klio-lifecycle/internal/object"
 	log "github.com/g2a-com/klio-logger-go"
 	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v2"

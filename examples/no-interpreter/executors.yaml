@@ -1,0 +1,18 @@
+---
+apiVersion: g2a-cli/internal
+kind: Tagger
+name: dummy
+schema: '{}'
+script: ''
+---
+apiVersion: g2a-cli/internal
+kind: Builder
+name: dummy
+schema: '{}'
+script: ''
+---
+apiVersion: g2a-cli/internal
+kind: Pusher
+name: dummy
+schema: '{}'
+script: ''

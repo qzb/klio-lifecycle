@@ -1,0 +1,20 @@
+---
+apiVersion: g2a-cli/internal
+kind: Service
+name: generic-api
+build:
+  tags:
+    - type: dummy
+      index: 0
+      spec: {}
+  artifacts:
+    toBuild:
+      - type: dummy
+        index: 0
+        spec: {}
+    toPush:
+      - type: dummy
+        index: 0
+        spec: {}
+deploy:
+  releases: []
