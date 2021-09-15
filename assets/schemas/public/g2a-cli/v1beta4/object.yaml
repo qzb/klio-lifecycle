@@ -1,0 +1,5 @@
+title: Object
+oneOf:
+  - $ref: "./project.yaml"
+  - $ref: "./service.yaml"
+  - $ref: "./environment.yaml"

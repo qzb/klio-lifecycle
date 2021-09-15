@@ -1,0 +1,87 @@
+title: Service
+type: object
+required:
+  - apiVersion
+  - kind
+  - name
+properties:
+  apiVersion:
+    $ref: './partials/api-version.yaml'
+  kind:
+    description: Determines type of the document.
+    const: 'Service'
+  name:
+    description: Unique name used to identify service.
+    examples:
+      - example-api
+    $ref: './partials/name.yaml'
+  artifacts:
+    description: >
+      List of artifacts to produce by build command. Each entry describes single artifact like
+      docker image or npm package.
+    type: array
+    items:
+      examples:
+        - docker:
+            image: 'example.com/test/image'
+        - hugo:
+            dir: '{{ .Service.Dir }}/docs'
+          push:
+            artifactory:
+              path:
+                source: '{{ .Service.Dir }}/docs/public/*'
+                target: 'docs-snapshot-local/generic-api/{{ .Tag }}/'
+        - docker:
+            image: 'example.com/test/image2'
+          push: false
+      x-examplesDescriptions:
+        - Each artifact definition contains a single property defining names of executors (builder
+          and pusher) used to handle it. Format of the configuration within is determined by a
+          schema attached to Builder definition. If there is a matching Pusher, configuration must
+          conform to its schema as well.
+        - If you want to use Pusher and Builder with different names or different configuration
+          formats, add "push" property with a separate pusher definition.
+        - If you don't want to push artifact, set "push" property to false.
+      oneOf:
+        - $ref: './partials/entry.yaml'
+        - type: object
+          minProperties: 2
+          maxProperties: 2
+          required:
+            - push
+          properties:
+            push:
+              tsType: false | Record<string, unknown>
+              oneOf:
+                - $ref: './partials/entry.yaml'
+                - const: false
+          additionalProperties: true
+  tags:
+    description: >
+      Describes how to generate tags used when pushing artifacts to registry.
+    type: array
+    items:
+      examples:
+        - gitSha
+        - gitTag
+      $ref: './partials/entry.yaml'
+  releases:
+    description: >
+      List of releases to do by deploy command.
+    type: array
+    items:
+      examples:
+        - helm:
+            name: redis
+            chartPath: 'bitnami/redis'
+            valuesFiles:
+              - '{{ .Environment.Dir }}/redis.yaml'
+            chartRepository:
+              name: bitnami
+              url: https://charts.bitnami.com/bitnami
+      $ref: './partials/entry.yaml'
+  tasks:
+    description:
+      Definitions of the tasks used by commands "prepare", "test", "lint" and "run". These tasks may
+      be also specified in the Project definition.
+    $ref: './partials/tasks.yaml'

@@ -1,0 +1,7 @@
+apiVersion: g2a-cli/v2.0
+kind: Environment
+name: local
+deployServices:
+  - generic-api
+variables:
+  variable: 'variable defined in {{ .Environment.Name }} environment'

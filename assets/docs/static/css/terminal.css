@@ -1,0 +1,27 @@
+#terminal > div {
+    position: relative;
+    margin: -1em 0 2rem 0;
+    padding: 0;
+    background-color: #000;
+    color: #fff;
+    line-height: 1.4;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0px 0 5px 5px;
+}
+#terminal > div > pre {
+    color: #fff;
+    display: block;
+    margin: 0;
+    padding: 1.05rem 1.2rem;
+    background: transparent;
+    overflow: auto;
+    vertical-align: top;
+}
+#terminal > div > pre:before {
+    content: '$';
+    box-sizing: border-box;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    color: #fff;
+}

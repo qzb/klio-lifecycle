@@ -1,0 +1,38 @@
+type: object
+properties:
+  prepare:
+    description: >
+      Defines steps required to preapre freshly clonned repository for development, tests or build.
+      This definition is used by "prepare" command.
+    examples:
+      - - make:
+            target: prepare
+    $ref: '#/$defs/task'
+  test:
+    description: >
+      Defines how to run tests. This definition is used by "test" command.
+    examples:
+      - - script:
+            sh: go test ./...
+    $ref: '#/$defs/task'
+  lint:
+    description: >
+      Defines how to lint the code. Ideally should try to fix the issues. This definition is used by
+      "lint" command.
+    examples:
+      - - prettier
+    $ref: '#/$defs/task'
+additionalProperties:
+  description: >
+    You are not bound to use pre-defined tasks. All tasks (including custom ones) may be run using
+    "run" command.
+  examples:
+    - - runnerName:
+          some: params
+  $ref: '#/$defs/task'
+  tsType: '({ [k: string]: unknown; } | string )[] | undefined'
+$defs:
+  task:
+    type: array
+    items:
+      $ref: './entry.yaml'

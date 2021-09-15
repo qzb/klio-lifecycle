@@ -1,0 +1,16 @@
+type: array
+items:
+  examples:
+    - service: generic-service
+      entry: 0
+      result: 'some result'
+  type: object
+  additionalProperties: true
+  properties:
+    service:
+      $ref: './name.yaml'
+    entry:
+      type: integer
+      min: 0
+    result:
+      type: string

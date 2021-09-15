@@ -1,0 +1,7 @@
+apiVersion: g2a-cli/v1beta4
+kind: Project
+name: project
+services:
+  - .
+environments:
+  - .

@@ -1,0 +1,12 @@
+/node_modules
+/internal/blueprint/internal/scheme/transform/src/types
+/internal/blueprint/internal/scheme/transform/dist
+/internal/blueprint/internal/scheme/transform/script.go
+/internal/blueprint/internal/scheme/schemas.go
+/**/resources/_gen
+/assets/docs/themes/learn
+/assets/docs/public
+/assets/docs/static/schemas
+/build
+.DS_Store
+.g2a

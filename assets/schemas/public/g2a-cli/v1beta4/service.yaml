@@ -1,0 +1,61 @@
+title: Service
+type: object
+required:
+  - apiVersion
+  - kind
+  - name
+properties:
+  apiVersion:
+    $ref: "./partials/api-version.yaml"
+  kind:
+    const: "Service"
+  name:
+    $ref: "./partials/name.yaml"
+  hooks:
+    type: object
+    additionalProperties: true
+    properties:
+      pre-build:
+        $ref: "#/$defs/hooks"
+      pre-deploy:
+        $ref: "#/$defs/hooks"
+      post-build:
+        $ref: "#/$defs/hooks"
+      post-deploy:
+        $ref: "#/$defs/hooks"
+  build:
+    type: object
+    additionalProperties: false
+    required:
+      - artifacts
+      - tagPolicy
+    properties:
+      artifacts:
+        $ref: "#/$defs/entries"
+      tagPolicy:
+        type: object
+        minProperties: 1
+        additionalProperties:
+          type: object
+  deploy:
+    type: object
+    additionalProperties: false
+    required:
+      - releases
+    properties:
+      releases:
+        $ref: "#/$defs/entries"
+$defs:
+  entries:
+    type: array
+    items:
+      type: object
+      minProperties: 1
+      maxProperties: 1
+      additionalProperties:
+        type: object
+  hooks:
+    type: array
+    items:
+      type: string
+      minLength: 1

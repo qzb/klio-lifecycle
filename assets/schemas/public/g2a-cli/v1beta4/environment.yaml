@@ -1,0 +1,23 @@
+title: Environment
+type: object
+additionalProperties: false
+required:
+  - apiVersion
+  - kind
+  - name
+properties:
+  apiVersion:
+    $ref: "./partials/api-version.yaml"
+  kind:
+    const: "Environment"
+  name:
+    $ref: "./partials/name.yaml"
+  deployServices:
+    type: array
+    items:
+      type: string
+  variables:
+    type: object
+    patternProperties:
+      "^[a-zA-Z][a-zA-Z0-9]*$":
+        type: string

@@ -1,0 +1,12 @@
+apiVersion: g2a-cli/v2.0
+kind: Builder
+name: script
+schema:
+  type: object
+  required:
+    - sh
+  properties:
+    sh:
+      type: string
+js: |
+  exec('sh', [ '-c', 'export PUSH=false\n' + input.spec.sh ])

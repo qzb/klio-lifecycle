@@ -1,0 +1,12 @@
+type: object
+additionalProperties: true
+required:
+  - artifacts
+  - pushed
+properties:
+  tags:
+    $ref: './partials/results.yaml'
+  artifacts:
+    $ref: './partials/results.yaml'
+  pushedArtifacts:
+    $ref: './partials/results.yaml'

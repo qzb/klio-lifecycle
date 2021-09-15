@@ -1,0 +1,9 @@
+title: Object
+oneOf:
+  - $ref: "./builder.yaml"
+  - $ref: "./deployer.yaml"
+  - $ref: "./environment.yaml"
+  - $ref: "./project.yaml"
+  - $ref: "./pusher.yaml"
+  - $ref: "./service.yaml"
+  - $ref: "./tagger.yaml"

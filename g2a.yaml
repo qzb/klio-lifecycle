@@ -1,0 +1,4 @@
+dependencies:
+  build:
+    version: 1.5.0
+defaultRegistry: https://cli.code.g2a.com/registry.yaml

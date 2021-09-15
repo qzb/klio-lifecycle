@@ -1,0 +1,45 @@
+title: Project
+type: object
+additionalProperties: false
+required:
+  - kind
+  - name
+  - files
+  - variables
+properties:
+  kind:
+    const: "Project"
+  name:
+    $ref: "./partials/name.yaml"
+  files:
+    $ref: "#/$defs/globs"
+  variables:
+    type: object
+    patternProperties:
+      "^[a-zA-Z][a-zA-Z0-9]*$":
+        type: string
+
+$defs:
+  globs:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - glob
+      properties:
+        git:
+          additionalProperties: false
+          required:
+            - url
+            - rev
+          properties:
+            url:
+              type: string
+              minLength: 1
+            rev:
+              type: string
+              minLength: 1
+        glob:
+          type: string
+          minLength: 1

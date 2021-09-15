@@ -1,0 +1,41 @@
+apiVersion: g2a-cli/v2.0
+kind: Builder
+name: docker
+schema:
+  type: object
+  required:
+    - image
+  properties:
+    image:
+      type: string
+    context:
+      type: string
+    dockerfilePath:
+      type: string
+    buildTarget:
+      type: string
+    buildArgs:
+      type: object
+      additionalProperties:
+        type: string
+js: |
+  for (let tag of input.tags) {
+    let image = input.spec.image + ':' + tag
+    let args = [ 'build', input.spec.context || ".", '-t', image ]
+
+    if (input.spec.dockerfilePath) {
+      args.push('-f', input.spec.dockerfilePath)
+    }
+
+    for (let key in input.spec.buildArgs) {
+      args.push('--build-arg', key + '=' + input.spec.buildArgs[key])
+    }
+
+    if (input.spec.buildTarget) {
+      args.push('--target', input.spec.buildTarget)
+    }
+
+    exec("docker", args)
+
+    output.push(image)
+  }

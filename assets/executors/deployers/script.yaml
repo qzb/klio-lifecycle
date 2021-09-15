@@ -1,0 +1,12 @@
+apiVersion: g2a-cli/v2.0
+kind: Deployer
+name: script
+schema:
+  type: object
+  required:
+    - sh
+  properties:
+    sh:
+      type: string
+js: |
+  exec('sh', [ '-c', input.spec.sh ])

@@ -1,0 +1,22 @@
+apiVersion: g2a-cli/v2.0
+kind: Pusher
+name: docker
+schema:
+  type: object
+  required:
+    - image
+  properties:
+    image:
+      type: string
+    context:
+      type: string
+    dockerfilePath:
+      type: string
+    buildTarget:
+      type: string
+    buildArgs:
+      type: object
+      additionalProperties:
+        type: string
+js: |
+  throw "not implemented"
