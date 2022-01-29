@@ -13,5 +13,5 @@ schema:
     target:
       type: string
       minLength: 1
-js: |
+script: |
   throw "not implemented"

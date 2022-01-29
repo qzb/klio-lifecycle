@@ -5,7 +5,7 @@ required:
   - kind
   - name
   - schema
-  - js
+  - script
 properties:
   kind:
     enum:
@@ -17,5 +17,5 @@ properties:
     $ref: "./partials/name.yaml"
   schema:
     type: string
-  js:
+  script:
     type: string

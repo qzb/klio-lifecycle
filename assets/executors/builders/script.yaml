@@ -8,5 +8,5 @@ schema:
   properties:
     sh:
       type: string
-js: |
+script: |
   exec('sh', [ '-c', 'export PUSH=false\n' + input.spec.sh ])

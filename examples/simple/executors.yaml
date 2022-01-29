@@ -5,8 +5,8 @@ name: custom
 schema:
   type: string
   minLength: 1
-js: |
-  output.push(input.spec)
+script: |
+  addResult(input.spec)
 ---
 apiVersion: g2a-cli/v2.0
 kind: Builder
@@ -18,11 +18,10 @@ schema:
   properties:
     image:
       type: string
-# Since it's only an example, this builder doesn't do anything intresting.
-js: |
-  for (let tag of input.tags) {
-    let image = input.spec.image + ':' + tag
-    output.push(image)
+# Since it's only an example, this builder doesn't do anything interesting.
+script: |
+  for tag in input.tags {
+    addResult(input.spec.image + ":" + tag)
   }
 ---
 apiVersion: g2a-cli/v2.0
@@ -30,11 +29,9 @@ kind: Pusher
 name: docker
 schema:
   type: object
-# Since it's only an example, this builder doesn't do anything intresting.
-js: |
-  for (let artifact of input.artifacts) {
-    output.push(artifact)
-  }
+# Since it's only an example, this builder doesn't do anything interesting.
+script: |
+  addResult(input.artifacts...)
 ---
 apiVersion: g2a-cli/v2.0
 kind: Deployer
@@ -63,5 +60,6 @@ schema:
           type: string
         url:
           type: string
-js: |
-  output.push(input.spec.name)
+# Since it's only an example, this builder doesn't do anything interesting.
+script: |
+  addResult(input.spec.name)

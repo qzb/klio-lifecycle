@@ -31,5 +31,5 @@ schema:
           type: string
         url:
           type: string
-js: |
+script: |
   throw "not implemented"
