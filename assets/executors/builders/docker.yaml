@@ -18,24 +18,31 @@ schema:
       type: object
       additionalProperties:
         type: string
-js: |
-  for (let tag of input.tags) {
-    let image = input.spec.image + ':' + tag
-    let args = [ 'build', input.spec.context || ".", '-t', image ]
+script: |
+  os := import("os")
 
-    if (input.spec.dockerfilePath) {
-      args.push('-f', input.spec.dockerfilePath)
+  for tag in input.tags {
+    image := input.spec.image + ":" + tag
+    args := [ "build", input.spec.context || ".", "-t", image ]
+
+    if input.spec.dockerfilePath {
+      args += [ "-f", input.spec.dockerfilePath ]
     }
 
     for (let key in input.spec.buildArgs) {
-      args.push('--build-arg', key + '=' + input.spec.buildArgs[key])
+      args += [ "--build-arg", key + "=" + input.spec.buildArgs[key] ]
     }
 
-    if (input.spec.buildTarget) {
-      args.push('--target', input.spec.buildTarget)
+    if input.spec.buildTarget {
+      args += [ "--target", input.spec.buildTarget ]
     }
 
-    exec("docker", args)
+    cmd := exec("docker", args)
 
-    output.push(image)
+    err := cmd.wait()
+    if err != nil {
+      abort(err)
+    }
+
+    addResults(image)
   }

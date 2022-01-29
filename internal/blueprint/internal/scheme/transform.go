@@ -114,7 +114,7 @@ func toInternalExecutor(obj any) any {
 	return map[string]any{
 		"kind":   getString(obj, "kind"),
 		"name":   getString(obj, "name"),
-		"js":     getString(obj, "js"),
+		"script": getString(obj, "script"),
 		"schema": string(schema),
 	}
 }

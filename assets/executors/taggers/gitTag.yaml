@@ -1,7 +1,7 @@
 apiVersion: g2a-cli/v2.0
 kind: Tagger
 name: gitTag
-js: |
+script: |
   try {
     let tag = exec('git', [ 'describe', '--exact-match', 'HEAD' ])
     output.push(tag)

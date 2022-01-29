@@ -2,12 +2,14 @@ package runner
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/dop251/goja"
+	"github.com/d5/tengo/v2"
 	"github.com/g2a-com/cicd/internal/blueprint"
-	"github.com/g2a-com/cicd/internal/exec"
 	"github.com/g2a-com/cicd/internal/object"
-	log "github.com/g2a-com/klio-logger-go"
+	"github.com/g2a-com/cicd/internal/runner/stdlib"
+	logger "github.com/g2a-com/klio-logger-go"
+	"github.com/spf13/afero"
 )
 
 type Result struct {
@@ -77,57 +79,43 @@ func (r *DeployerRunner) Run() ([]Result, error) {
 }
 
 func run(b *blueprint.Blueprint, service object.Service, entry object.ServiceEntry, kind object.Kind, input map[string]interface{}) (results []Result, err error) {
-	l := log.StandardLogger().WithTags(service.Name, entry.Type)
+	displayName := fmt.Sprintf("%s %q", strings.ToLower(string(kind)), entry.Type)
 
+	// Try to get an executor object
 	executor, ok := b.GetExecutor(kind, entry.Type)
 	if !ok {
-		return results, fmt.Errorf("builder %q does not exist", entry.Type)
+		return results, fmt.Errorf("%s does not exist", displayName)
 	}
 
-	vm := goja.New()
+	// Create a new tengo script instance
+	script := tengo.NewScript([]byte(executor.Script))
 
-	vm.SetFieldNameMapper(goja.TagFieldNameMapper("json", true))
-
-	vm.Set("input", input)
-	vm.Set("output", []interface{}{})
-
-	vm.Set("exec", func(command string, args []string) string {
-		cmd := exec.NewCommand(command, args...)
-		cmd.StdoutLogger = l
-		cmd.StderrLogger = l.WithLevel(log.ErrorLevel)
-		cmd.Dir = service.Directory
-		err := cmd.Run()
-		if err != nil {
-			panic(err)
+	// Prepare function for updating results
+	addResult := func(rs ...string) {
+		for _, r := range rs {
+			results = append(results, Result{Service: service.Name, Entry: entry.Index, Result: r})
 		}
-		return cmd.StdoutText
-	})
-
-	vm.Set("read", readFile)
-	vm.Set("write", writeFile)
-	vm.Set("request", request)
-
-	_, err = vm.RunString(executor.JS)
-	if err != nil {
-		// if jserr, ok := err.(*goja.Exception); ok {
-		// 	msg := jserr.Value().Export()
-		// 	return "", fmt.Errorf("%s %q failed: %s", strings.ToLower(string(executor.Kind)), executor.Name, msg)
-		// }
-		return results, err
 	}
 
-	var output []string
-	err = vm.ExportTo(vm.Get("output"), &output)
+	// Set imports & builtins
+	std := stdlib.Stdlib{
+		Fs:               afero.OsFs{},
+		Logger:           logger.StandardLogger().WithTags(service.Name, entry.Type),
+		WorkingDirectory: service.Directory,
+		Builtins: map[string]any{
+			"input":     input,
+			"addResult": addResult,
+		},
+	}
+	err = std.AddToScript(script)
 	if err != nil {
-		return results, err
+		return results, fmt.Errorf("Cannot initialize standard library for %s:\n\t%s", displayName, err)
 	}
 
-	for _, o := range output {
-		results = append(results, Result{
-			Service: service.Name,
-			Entry:   entry.Index,
-			Result:  o,
-		})
+	// Run the script
+	_, err = script.Run()
+	if err != nil {
+		return results, fmt.Errorf("Error occurred while running %s:\n\t%s", displayName, err)
 	}
 
 	return results, nil

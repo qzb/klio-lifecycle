@@ -4,7 +4,7 @@ required:
   - apiVersion
   - kind
   - name
-  - js
+  - script
 additionalProperties: false
 properties:
   apiVersion:
@@ -15,5 +15,5 @@ properties:
     $ref: "./partials/name.yaml"
   schema:
     $ref: https://json-schema.org/draft/2019-09/schema
-  js:
+  script:
     type: string

@@ -18,5 +18,5 @@ schema:
       type: object
       additionalProperties:
         type: string
-js: |
+script: |
   throw "not implemented"

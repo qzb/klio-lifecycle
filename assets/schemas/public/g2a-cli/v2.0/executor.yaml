@@ -4,7 +4,7 @@ required:
   - apiVersion
   - kind
   - name
-  - js
+  - script
 additionalProperties: false
 properties:
   apiVersion:
@@ -35,7 +35,7 @@ properties:
           context:
             type: string
     $ref: https://json-schema.org/draft/2019-09/schema
-  js:
+  script:
     description: Implementation of the executor.
     examples:
       - |
