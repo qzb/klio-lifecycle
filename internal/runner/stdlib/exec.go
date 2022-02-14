@@ -13,16 +13,15 @@ func (s *Stdlib) createExecModule() map[string]any {
 	return map[string]any{
 		"command": func(cmdName string, args ...string) command {
 			cmd := exec.NewCommand(cmdName, args...)
-			cmd.StdoutLogger = s.Logger.WithLevel(logger.VerboseLevel)
-			cmd.StderrLogger = s.Logger.WithLevel(logger.ErrorLevel)
 			cmd.Dir = s.WorkingDirectory
-			return command{cmd}
+			return command{cmd, s.Logger}
 		},
 	}
 }
 
 type command struct {
 	*exec.Command
+	*logger.Logger
 }
 
 func (c command) EncodeTengoObject() (tengo.Object, error) {
@@ -49,8 +48,42 @@ func (c command) EncodeTengoObject() (tengo.Object, error) {
 		"get_stdout_text": func() string {
 			return c.StdoutText
 		},
-		"run": func() error {
-			return c.Run()
-		},
+		"run":         c.Run,
+		"must_run":    c.mustRun,
+		"output":      c.mustOutput,
+		"must_output": c.output,
 	})
+}
+
+func (c command) run() error {
+	if c.StdoutLogger == nil {
+		c.Command.StdoutLogger = c.Logger.WithLevel(logger.InfoLevel)
+	}
+	if c.StderrLogger == nil {
+		c.Command.StderrLogger = c.Logger.WithLevel(logger.ErrorLevel)
+	}
+	return c.Command.Run()
+}
+
+func (c command) mustRun() {
+	err := c.run()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (c command) output() (string, error) {
+	if c.Command.StdoutLogger == nil {
+		c.Command.StdoutLogger = c.Logger.WithLevel(logger.VerboseLevel)
+	}
+	err := c.run()
+	return c.Command.StdoutText, err
+}
+
+func (c command) mustOutput() string {
+	out, err := c.output()
+	if err != nil {
+		panic(err)
+	}
+	return out
 }
