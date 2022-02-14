@@ -32,4 +32,4 @@ schema:
         url:
           type: string
 script: |
-  throw "not implemented"
+  abort("not implemented")

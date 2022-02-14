@@ -9,4 +9,5 @@ schema:
     sh:
       type: string
 script: |
-  exec('sh', [ '-c', 'export PUSH=false\n' + input.spec.sh ])
+  exec := import("exec")
+  exec.command("sh", "-c", "export PUSH=false\n" + input.spec.sh).must_run()

@@ -13,5 +13,8 @@ schema:
     - type: string
       minLength: 1
 script: |
-  let tag = typeof input.spec === 'string' ? input.spec : input.spec.format
-  output.push(tag)
+  if is_string(input.spec) {
+    addResult(input.spec)
+  } else {
+    addResult(input.spec.format)
+  }
