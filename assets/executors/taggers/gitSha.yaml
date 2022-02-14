@@ -9,6 +9,6 @@ schema:
       min: 1
       max: 40
 script: |
-  let sha = exec('git', [ 'log', '-1', '--pretty=format:%H' ])
-  let tag = sha.slice(0, input.spec.length || 40)
-  output.push(tag)
+  exec := import("exec")
+  result := exec.command("git", "log", "-1", "--pretty=format:%H").must_output()
+  addResult(result[0:40])

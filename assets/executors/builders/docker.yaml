@@ -19,7 +19,7 @@ schema:
       additionalProperties:
         type: string
 script: |
-  os := import("os")
+  exec := import("exec")
 
   for tag in input.tags {
     image := input.spec.image + ":" + tag
@@ -37,12 +37,7 @@ script: |
       args += [ "--target", input.spec.buildTarget ]
     }
 
-    cmd := exec("docker", args)
+    exec.command("docker", args...).must_run()
 
-    err := cmd.wait()
-    if err != nil {
-      abort(err)
-    }
-
-    addResults(image)
+    addResult(image)
   }

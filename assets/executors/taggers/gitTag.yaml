@@ -2,9 +2,13 @@ apiVersion: g2a-cli/v2.0
 kind: Tagger
 name: gitTag
 script: |
-  try {
-    let tag = exec('git', [ 'describe', '--exact-match', 'HEAD' ])
-    output.push(tag)
-  } catch (e) {
+  log := import("log")
+  exec := import("exec")
+
+  result := exec.command("git", "describe", "--exact-match", "HEAD").must_output()
+
+  if result == "" {
     log.verbose('cannot find any git tags')
+  } else {
+    addResult(result)
   }

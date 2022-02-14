@@ -19,4 +19,4 @@ schema:
       additionalProperties:
         type: string
 script: |
-  throw "not implemented"
+  abort("not implemented")
