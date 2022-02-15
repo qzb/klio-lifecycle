@@ -21,8 +21,8 @@ properties:
       artifacts:
         type: object
         required:
-          - build
-          - push
+          - toBuild
+          - toPush
         properties:
           toBuild:
             $ref: '#/$defs/entries'
