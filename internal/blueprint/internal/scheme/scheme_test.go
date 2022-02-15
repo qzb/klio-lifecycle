@@ -172,7 +172,7 @@ func TestToInternal(t *testing.T) {
 				"services": []any{
 					".",
 					"dir",
-					"dirs/*",
+					"dirs/*/",
 				},
 				"environments": []any{
 					"envs/*",
@@ -194,7 +194,7 @@ func TestToInternal(t *testing.T) {
 						"glob": "assets/executors/*/*.yaml",
 					},
 					map[string]any{
-						"glob": "./service.yaml",
+						"glob": "service.yaml",
 					},
 					map[string]any{
 						"glob": "dir/service.yaml",
