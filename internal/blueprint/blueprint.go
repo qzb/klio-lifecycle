@@ -43,10 +43,10 @@ type Blueprint struct {
 
 func Load(opts Opts) (*Blueprint, error) {
 	if opts.Mode == "" {
-		panic("mode not specifed")
+		panic("mode is not specified")
 	}
 	if opts.Mode == DeployMode && opts.Environment == "" {
-		panic("environemnt is requited in deploy mode")
+		panic("environment is requited in deploy mode")
 	}
 
 	b := &Blueprint{

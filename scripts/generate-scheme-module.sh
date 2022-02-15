@@ -29,5 +29,10 @@ fi
     "$REPO_DIR/scripts/normalize-schema.mjs" $FILEPATH | sed -e 's/^/\t\t/;'
     echo "\t\`),"
   done
+
+  echo "\t\"internal/Object\": []byte(\`"
+  "$REPO_DIR/scripts/normalize-schema.mjs" assets/schemas/internal/object.yaml | sed -e 's/^/\t\t/;'
+  echo "\t\`),"
+
   echo '}'
 ) > "$MODULE_DIR/schemas.go"

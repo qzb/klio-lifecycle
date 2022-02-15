@@ -215,6 +215,6 @@ function toInternalEntry(obj: string | false | Record<string, unknown>, index: n
   if (typeof obj === 'string') {
     return { index, type: obj, spec: null };
   }
-  const [type, spec] = Object.entries(obj)[0];
+  const [type, spec] = Object.entries(obj).filter(kv => kv[0] !== 'push')[0];
   return { index, type, spec };
 }
