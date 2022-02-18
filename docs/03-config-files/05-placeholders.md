@@ -1,8 +1,7 @@
 ---
 title: Placeholders & Variables
 menuTitle: Placeholders
-date: 2021-03-02T17:55:28Z
-weight: 30
+weight: 50
 ---
 
 In some places in the configuration files, you can use `{{ }}` placeholders. They can be used only
