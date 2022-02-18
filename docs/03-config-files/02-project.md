@@ -1,11 +1,10 @@
 ---
 title: Project Configuration
 menuTitle: Project
-date: 2021-03-02T17:55:28Z
 weight: 20
 ---
 
-`project.yaml` declares project root.
+`project.yaml` defines project root.
 
 ## Example
 

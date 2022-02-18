@@ -1,12 +1,19 @@
-theme: learn
+theme: relearn
 contentDir: ../../docs
 markup:
   goldmark:
     renderer:
       unsafe: true
 params:
+  disableLandingPageButton: true
+  themeVariant: [ "learn", "neon" ]
+  disableInlineCopyToClipBoard: true
+  showVisitedLinks: true
   custom_css:
-    - css/terminal.css
-    - css/tab.css
     - css/yaml-config.css
-    - css/theme-blue.css
+menu:
+  shortcuts:
+    - name: "<i class='fab fa-fw fa-github'></i> GitHub repo"
+      identifier: "ds"
+      url: "https://github.com/g2a-com/klio-lifecycle"
+      weight: 10
