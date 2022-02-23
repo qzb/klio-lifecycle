@@ -19,9 +19,7 @@ func (s *Stdlib) AddToScript(script *tengo.Script) error {
 	// Set imports
 	modules := map[string]map[string]any{
 		"exec": s.createExecModule(),
-		"fs":   s.createFsModule(),
 		"log":  s.createLogModule(),
-		"os":   s.createLogModule(),
 	}
 	ms := tengo.NewModuleMap()
 	for name, attrs := range modules {
