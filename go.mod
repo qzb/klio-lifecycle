@@ -2,6 +2,8 @@ module github.com/g2a-com/cicd
 
 go 1.18
 
+replace github.com/g2a-com/klio-logger-go => /Users/qzb/Workspace/qzb/klio-logger-go
+
 require (
 	github.com/d5/tengo/v2 v2.10.1
 	github.com/g2a-com/klio-logger-go v0.0.0-20210825115916-d4cf1e3a8939
