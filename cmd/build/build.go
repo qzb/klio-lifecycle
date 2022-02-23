@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/g2a-com/cicd/internal/blueprint"
 	"github.com/g2a-com/cicd/internal/flags"
-	"github.com/g2a-com/cicd/internal/runner"
+	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/cicd/internal/script"
 	"github.com/g2a-com/cicd/internal/utils"
 	log "github.com/g2a-com/klio-logger-go"
 )
@@ -52,6 +54,15 @@ func main() {
 		panic(err)
 	}
 
+	// Helper for getting executors
+	getExecutor := func(kind object.Kind, name string) object.Executor {
+		e, ok := blueprint.GetExecutor(kind, name)
+		if !ok {
+			panic(fmt.Errorf("%s %q does not exist", kind, name))
+		}
+		return e
+	}
+
 	// Build
 	for _, service := range blueprint.ListServices() {
 		l := l.WithTags(service.Name)
@@ -63,18 +74,18 @@ func main() {
 
 		// Generate tags
 		for _, entry := range service.Build.Tags {
-			r := runner.TaggerRunner{
-				Blueprint: blueprint,
-				Service:   service,
-				Entry:     entry,
-			}
+			s := script.New(getExecutor(object.TaggerKind, entry.Type))
+			s.Logger = l
+			s.Dir = service.Directory
 
-			res, err := r.Run()
+			res, err := s.Run(TaggerInput{
+				Spec: entry.Spec,
+			})
 			if err != nil {
 				panic(err)
 			}
 
-			result.Tags = append(result.Tags, res...)
+			result.addTags(service, entry, res)
 		}
 
 		if len(result.getTags(service)) == 0 {
@@ -84,40 +95,42 @@ func main() {
 
 		// Build artifacts
 		for _, entry := range service.Build.Artifacts.ToBuild {
-			r := runner.BuilderRunner{
-				Blueprint: blueprint,
-				Service:   service,
-				Entry:     entry,
-				Tags:      result.getTags(service),
-			}
+			s := script.New(getExecutor(object.BuilderKind, entry.Type))
+			s.Logger = l
+			s.Dir = service.Directory
 
-			res, err := r.Run()
+			res, err := s.Run(BuilderInput{
+				Spec: entry.Spec,
+				Tags: result.getTags(service),
+			})
 			if err != nil {
 				panic(err)
 			}
 
-			result.Artifacts = append(result.Artifacts, res...)
+			result.addArtifacts(service, entry, res)
 		}
 	}
 
 	// Push artifacts
 	if opts.Push {
 		for _, service := range blueprint.ListServices() {
+			l := l.WithTags("push", service.Name)
+
 			for _, entry := range service.Build.Artifacts.ToPush {
-				r := runner.PusherRunner{
-					Blueprint: blueprint,
-					Service:   service,
-					Entry:     entry,
+				s := script.New(getExecutor(object.PusherKind, entry.Type))
+				s.Logger = l
+				s.Dir = service.Directory
+
+				res, err := s.Run(PusherInput{
+					Spec:      entry.Spec,
 					Tags:      result.getTags(service),
 					Artifacts: result.getArtifacts(service, entry),
-				}
-
-				res, err := r.Run()
+				})
 				if err != nil {
 					panic(err)
 				}
 
-				result.PushedArtifacts = append(result.PushedArtifacts, res...)
+				result.addPushedArtifacts(service, entry, res)
 			}
 		}
 	}

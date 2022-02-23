@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/g2a-com/cicd/internal/blueprint"
 	"github.com/g2a-com/cicd/internal/flags"
-	"github.com/g2a-com/cicd/internal/runner"
+	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/cicd/internal/script"
 	"github.com/g2a-com/cicd/internal/utils"
 	log "github.com/g2a-com/klio-logger-go"
 )
@@ -72,21 +74,26 @@ func main() {
 		l.Printf(`Deploying service %q...`, service.Name)
 
 		for _, entry := range service.Deploy.Releases {
-			r := runner.DeployerRunner{
-				Blueprint: blueprint,
-				Service:   service,
-				Entry:     entry,
-				Force:     opts.Force,
-				DryRun:    opts.DryRun,
-				Wait:      opts.Wait,
+			e, ok := blueprint.GetExecutor(object.DeployerKind, entry.Type)
+			if !ok {
+				panic(fmt.Errorf("deployer %q does not exist", entry.Type))
 			}
 
-			res, err := r.Run()
+			s := script.New(e)
+			s.Logger = l
+			s.Dir = service.Directory
+
+			res, err := s.Run(DeployerInput{
+				Spec:   entry.Spec,
+				Force:  opts.Force,
+				DryRun: opts.DryRun,
+				Wait:   opts.Wait,
+			})
 			if err != nil {
 				panic(err)
 			}
 
-			result.Releases = append(result.Releases, res...)
+			result.addReleases(service, entry, res)
 		}
 	}
 
