@@ -1,7 +1,7 @@
 ---
-title: Executors Configurations
-menuTitle: Executors
-weight: 50
+title: Introduction
+menuTitle: Introduction
+weight: 10
 ---
 
 Since Service defines _what_ to build or deploy, you need an executor to specify _how_ to do it.
