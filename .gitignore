@@ -8,5 +8,9 @@
 /assets/docs/public
 /assets/docs/static/schemas
 /build
+/deploy
+/.vscode
 .DS_Store
-.g2a
+.hugo_build.lock
+build-result.json
+deploy-result.json
