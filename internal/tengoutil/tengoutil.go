@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 
 	"github.com/d5/tengo/v2"
 )
@@ -61,7 +62,7 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 
 	// Return CallableFunc
 	return func(args ...tengo.Object) (obj tengo.Object, err error) {
-		if len(args) < t.NumIn() || (len(args) > t.NumIn() && !t.IsVariadic()) {
+		if (t.IsVariadic() && len(args) < t.NumIn()-1) || (!t.IsVariadic() && len(args) != t.NumIn()) {
 			return nil, tengo.ErrWrongNumArguments
 		}
 
@@ -69,8 +70,6 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 		// If actual and expected types don't match - return runtime error.
 		inputs := make([]reflect.Value, len(args))
 		for i, arg := range args {
-			var expected string
-			var value reflect.Value
 			var argType reflect.Type
 
 			if i >= t.NumIn()-1 && t.IsVariadic() {
@@ -79,52 +78,23 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 				argType = t.In(i)
 			}
 
-			switch argType.Kind() {
-			case reflect.String:
-				expected = "string"
-				if o, ok := arg.(*tengo.String); ok {
-					value = reflect.ValueOf(o.Value)
+			value, err := fromObject(arg, argType)
+			if err != nil {
+				if err, ok := err.(*DecodingError); ok {
+					return nil, tengo.ErrInvalidArgumentType{
+						Name:     strings.Join(append([]string{fmt.Sprint(i + 1)}, err.Path...), "."),
+						Expected: err.Expected,
+						Found:    fmt.Sprintf("%s (%s)", err.Object.TypeName(), err.Object),
+					}
 				}
-			case reflect.Int:
-				expected = "int"
-				if o, ok := arg.(*tengo.Int); ok {
-					value = reflect.ValueOf(int(o.Value))
-				}
-			case reflect.Int64:
-				expected = "int"
-				if o, ok := arg.(*tengo.Int); ok {
-					value = reflect.ValueOf(o.Value)
-				}
-			case reflect.Uint, reflect.Uint32, reflect.Uint64:
-				expected = "int (>= 0)"
-				if o, ok := arg.(*tengo.Int); ok && o.Value >= 0 {
-					value = reflect.ValueOf(o.Value).Convert(argType)
-				}
-			case reflect.Bool:
-				expected = "bool"
-				if o, ok := arg.(*tengo.Bool); ok {
-					value = reflect.ValueOf(!o.IsFalsy())
-				}
-			case reflect.Interface:
-				expected = "any"
-				if arg.TypeName() == "bool" {
-					value = reflect.ValueOf(!arg.IsFalsy())
-				} else {
-					value = reflect.ValueOf(arg).Elem().FieldByName("Value")
-				}
-			default:
-				expected = argType.Kind().String()
+				return nil, err
 			}
 
-			if !value.IsValid() {
-				return nil, tengo.ErrInvalidArgumentType{
-					Name:     fmt.Sprint(i + 1),
-					Expected: expected,
-					Found:    arg.TypeName(),
-				}
+			if value == nil {
+				inputs[i] = reflect.Zero(argType)
+			} else {
+				inputs[i] = reflect.ValueOf(value)
 			}
-
-			inputs[i] = value
 		}
 
 		// Run function
@@ -187,7 +157,10 @@ func toObject(value any, immutable bool) (_ tengo.Object, err error) {
 
 	case reflect.Func:
 		fn, err := ToCallableFunc(value)
-		return &tengo.UserFunction{Value: fn}, err
+		if err != nil {
+			return nil, err
+		}
+		return &tengo.UserFunction{Value: fn}, nil
 
 	case reflect.Bool:
 		if v.Bool() {
@@ -237,12 +210,8 @@ func toObject(value any, immutable bool) (_ tengo.Object, err error) {
 		for i := 0; i < t.NumField(); i++ {
 			ft := t.Field(i)
 			fv := v.Field(i)
-			tag := ft.Tag.Get("tengo")
-			name, opts := parseTag(tag)
-			if name == "" {
-				name = ft.Name
-			}
-			if tag == "-" || name == "" || !ft.IsExported() || (fv.IsZero() && opts.Contains("omitempty")) {
+			name, opts := parseTag(ft)
+			if name == "" || !ft.IsExported() || (fv.IsZero() && opts.Contains("omitempty")) {
 				continue
 			}
 			if opts.Contains("immutable") {
@@ -261,5 +230,128 @@ func toObject(value any, immutable bool) (_ tengo.Object, err error) {
 
 	default:
 		return nil, fmt.Errorf("%s cannot be converted to tengo object", t.Kind())
+	}
+}
+
+type DecodingError struct {
+	Expected string
+	Object   tengo.Object
+	Comment  string
+	Path     []string
+}
+
+func (e *DecodingError) Error() string {
+	return fmt.Sprintf("expected %q, found %q (%s)", e.Expected, e.Object.TypeName(), e.Comment)
+}
+
+// TODO: handle int overflows/underflows
+func fromObject(obj tengo.Object, t reflect.Type) (any, error) {
+	switch t.Kind() {
+	case reflect.Ptr:
+		if _, ok := obj.(*tengo.Undefined); ok {
+			return nil, nil
+		}
+		obj, err := fromObject(obj, t.Elem())
+		if err != nil {
+			return nil, err
+		}
+		return &obj, nil
+
+	case reflect.String:
+		if o, ok := obj.(*tengo.String); ok {
+			return reflect.ValueOf(o.Value).Convert(t).Interface(), nil
+		} else {
+			return nil, &DecodingError{Object: obj, Expected: "string"}
+		}
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if o, ok := obj.(*tengo.Int); ok {
+			return reflect.ValueOf(o.Value).Convert(t).Interface(), nil
+		} else {
+			return nil, &DecodingError{Object: obj, Expected: "int"}
+		}
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		if o, ok := obj.(*tengo.Int); ok {
+			return reflect.ValueOf(o.Value).Convert(t).Interface(), nil
+		} else {
+			return nil, &DecodingError{Object: obj, Expected: "int (>= 0)"}
+		}
+
+	case reflect.Float32, reflect.Float64:
+		if o, ok := obj.(*tengo.Float); ok {
+			return reflect.ValueOf(o.Value).Convert(t).Interface(), nil
+		} else {
+			return nil, &DecodingError{Object: obj, Expected: "float"}
+		}
+
+	case reflect.Bool:
+		if o, ok := obj.(*tengo.Bool); ok {
+			return reflect.ValueOf(!o.IsFalsy()).Convert(t).Interface(), nil
+		} else {
+			return nil, &DecodingError{Object: obj, Expected: "bool"}
+		}
+
+	case reflect.Slice:
+		if obj.TypeName() != "array" && obj.TypeName() != "immutable-array" && obj.TypeName() != "bytes" {
+			return nil, &DecodingError{Object: obj, Expected: "array"}
+		}
+		items := reflect.ValueOf(obj).Elem().FieldByName("Value").Interface().([]tengo.Object)
+		v := reflect.New(t).Elem()
+		v.Set(reflect.MakeSlice(t, len(items), len(items)))
+		for i, o := range items {
+			x, err := fromObject(o, t.Elem())
+			if err != nil {
+				if err, ok := err.(*DecodingError); ok {
+					err.Path = append([]string{fmt.Sprint(i)}, err.Path...)
+				}
+				return nil, err
+			}
+			v.Index(i).Set(reflect.ValueOf(x))
+		}
+		return v.Interface(), nil
+
+	// TODO: error when map has some extra keys
+	case reflect.Struct:
+		if obj.TypeName() != "map" && obj.TypeName() != "immutable-map" {
+			return nil, &DecodingError{Object: obj, Expected: "map"}
+		}
+		v := reflect.New(t).Elem()
+		for i := 0; i < t.NumField(); i++ {
+			f := t.Field(i)
+			name, _ := parseTag(f)
+			if name == "" || !f.IsExported() {
+				continue
+			}
+			fo, err := obj.IndexGet(&tengo.String{Value: name})
+			if err != nil {
+				return nil, err
+			}
+			if _, ok := fo.(*tengo.Undefined); ok {
+				continue
+			}
+			x, err := fromObject(fo, f.Type)
+			if err != nil {
+				if err, ok := err.(*DecodingError); ok {
+					err.Path = append([]string{name}, err.Path...)
+				}
+				return nil, err
+			}
+			v.Field(i).Set(reflect.ValueOf(x))
+		}
+		return v.Interface(), nil
+
+	// TODO: error if interface is not empty
+	case reflect.Interface:
+		if obj.TypeName() == "bool" {
+			return !obj.IsFalsy(), nil
+		} else if obj.TypeName() == "undefined" {
+			return nil, nil
+		} else {
+			return reflect.ValueOf(obj).Elem().FieldByName("Value").Interface(), nil
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported kind: %s", t.Kind())
 	}
 }

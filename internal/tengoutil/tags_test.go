@@ -5,11 +5,15 @@
 package tengoutil
 
 import (
+	"reflect"
 	"testing"
 )
 
 func TestTagParsing(t *testing.T) {
-	name, opts := parseTag("field,foobar,foo")
+	s := struct {
+		F int `tengo:"field,foobar,foo"`
+	}{}
+	name, opts := parseTag(reflect.TypeOf(s).Field(0))
 	if name != "field" {
 		t.Fatalf("name = %q, want field", name)
 	}

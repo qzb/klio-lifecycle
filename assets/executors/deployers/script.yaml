@@ -10,4 +10,4 @@ schema:
       type: string
 script: |
   exec := import("exec")
-  exec.command("sh", "-c", input.spec.sh).must_run()
+  exec.run("sh", "-c", input.spec.sh)

@@ -1,89 +1,120 @@
 package stdlib
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os/exec"
 
 	"github.com/d5/tengo/v2"
-	"github.com/g2a-com/cicd/internal/exec"
 	"github.com/g2a-com/cicd/internal/tengoutil"
 	logger "github.com/g2a-com/klio-logger-go"
 )
 
 func (s *Stdlib) createExecModule() map[string]any {
+	l := s.Logger
+
 	return map[string]any{
-		"command": func(cmdName string, args ...string) command {
-			cmd := exec.NewCommand(cmdName, args...)
-			cmd.Dir = s.WorkingDirectory
-			return command{cmd, s.Logger}
+		"command": func(opts cmdOpts) *cmd {
+			if opts.Dir == "" {
+				opts.Dir = s.WorkingDirectory
+			}
+			if opts.StdoutLevel == "" {
+				opts.StdoutLevel = logger.InfoLevel
+			}
+			if opts.StderrLevel == "" {
+				opts.StderrLevel = logger.ErrorLevel
+			}
+
+			return &cmd{&opts, l}
+		},
+		"run": func(cmdName string, args ...string) cmdResult {
+			opts := &cmdOpts{
+				Name:        cmdName,
+				Args:        args,
+				Dir:         s.WorkingDirectory,
+				StdoutLevel: logger.InfoLevel,
+				StderrLevel: logger.ErrorLevel,
+			}
+			return cmd{opts, l}.run()
+		},
+		"run_silently": func(cmdName string, args ...string) cmdResult {
+			opts := &cmdOpts{
+				Name:        cmdName,
+				Args:        args,
+				Dir:         s.WorkingDirectory,
+				StdoutLevel: logger.DebugLevel,
+				StderrLevel: logger.ErrorLevel,
+			}
+			return cmd{opts, l}.run()
 		},
 	}
 }
 
-type command struct {
-	*exec.Command
-	*logger.Logger
+type cmd struct {
+	opts *cmdOpts
+	log  *logger.Logger
 }
 
-func (c command) EncodeTengoObject() (tengo.Object, error) {
+func (c *cmd) EncodeTengoObject() (tengo.Object, error) {
 	return tengoutil.ToImmutableObject(map[string]any{
-		"set_stdout_level": func(levelName string) error {
-			level, ok := logger.ParseLevel(levelName)
-			if !ok {
-				return fmt.Errorf("invalid level: %s", levelName)
-			}
-			c.StdoutLogger = c.StdoutLogger.WithLevel(level)
-			return nil
-		},
-		"set_stderr_level": func(levelName string) error {
-			level, ok := logger.ParseLevel(levelName)
-			if !ok {
-				return fmt.Errorf("invalid level: %s", levelName)
-			}
-			c.StderrLogger = c.StderrLogger.WithLevel(level)
-			return nil
-		},
-		"get_stderr_text": func() string {
-			return c.StderrText
-		},
-		"get_stdout_text": func() string {
-			return c.StdoutText
-		},
-		"run":         c.Run,
-		"must_run":    c.mustRun,
-		"output":      c.mustOutput,
-		"must_output": c.output,
+		"run": c.run,
 	})
 }
 
-func (c command) run() error {
-	if c.StdoutLogger == nil {
-		c.Command.StdoutLogger = c.Logger.WithLevel(logger.InfoLevel)
+func (c cmd) run() cmdResult {
+	var stdoutBuffer, stderrBuffer bytes.Buffer
+
+	execCmd := exec.Command(c.opts.Name, c.opts.Args...)
+	execCmd.Dir = c.opts.Dir
+	execCmd.Env = c.opts.Env
+	execCmd.Stdout = &stdoutBuffer
+	execCmd.Stderr = &stderrBuffer
+
+	if c.opts.StdoutLevel != "disable" {
+		level := parseLevel(string(c.opts.StdoutLevel))
+		execCmd.Stdout = io.MultiWriter(execCmd.Stdout, c.log.WithLevel(level))
 	}
-	if c.StderrLogger == nil {
-		c.Command.StderrLogger = c.Logger.WithLevel(logger.ErrorLevel)
+	if c.opts.StderrLevel != "disable" {
+		level := parseLevel(string(c.opts.StderrLevel))
+		execCmd.Stderr = io.MultiWriter(execCmd.Stderr, c.log.WithLevel(level))
 	}
-	return c.Command.Run()
+
+	err := execCmd.Run()
+	if _, ok := err.(*exec.ExitError); err != nil && (!ok || !c.opts.IgnoreExitErrors) {
+		panic(fmt.Errorf("Failed to run %s:\n\t%s", execCmd, err))
+	}
+
+	return cmdResult{
+		ExitCode:   execCmd.ProcessState.ExitCode(),
+		StdoutText: stdoutBuffer.String(),
+		StderrText: stderrBuffer.String(),
+	}
 }
 
-func (c command) mustRun() {
-	err := c.run()
-	if err != nil {
-		panic(err)
-	}
+type cmdOpts struct {
+	Name             string       `tengo:"name"`
+	Args             []string     `tengo:"args"`
+	Dir              string       `tengo:"dir"`
+	Env              []string     `tengo:"env"`
+	StdoutLevel      logger.Level `tengo:"stdout_level"`
+	StderrLevel      logger.Level `tengo:"stderr_level"`
+	IgnoreExitErrors bool         `tengo:"ignore_exit_errors"`
 }
 
-func (c command) output() (string, error) {
-	if c.Command.StdoutLogger == nil {
-		c.Command.StdoutLogger = c.Logger.WithLevel(logger.VerboseLevel)
-	}
-	err := c.run()
-	return c.Command.StdoutText, err
+type cmdResult struct {
+	ExitCode   int    `tengo:"exit_code"`
+	StdoutText string `tengo:"stdout_text"`
+	StderrText string `tengo:"stderr_text"`
 }
 
-func (c command) mustOutput() string {
-	out, err := c.output()
-	if err != nil {
-		panic(err)
+func parseLevel(levelName string) logger.Level {
+	parsed, ok := logger.ParseLevel(levelName)
+	if !ok {
+		panic(fmt.Errorf(
+			"Unknown level %q, use one of: %s, %s, %s, %s, %s, %s, %s, disable",
+			levelName, logger.SpamLevel, logger.DebugLevel, logger.VerboseLevel, logger.InfoLevel, logger.WarnLevel, logger.ErrorLevel, logger.FatalLevel,
+		))
 	}
-	return out
+	return parsed
 }

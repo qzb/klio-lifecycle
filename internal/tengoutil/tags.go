@@ -5,18 +5,26 @@
 package tengoutil
 
 import (
+	"reflect"
 	"strings"
 )
 
-// tagOptions is the string following a comma in a struct field's "json"
+// tagOptions is the string following a comma in a struct field's "tengo"
 // tag, or the empty string. It does not include the leading comma.
 type tagOptions string
 
-// parseTag splits a struct field's json tag into its name and
-// comma-separated options.
-func parseTag(tag string) (string, tagOptions) {
-	tag, opt, _ := strings.Cut(tag, ",")
-	return tag, tagOptions(opt)
+// parseTag extracts "tengo" tag from StructField and splits it into its name and
+// comma-separated options. If name is not provided, it uses field's name.
+func parseTag(field reflect.StructField) (string, tagOptions) {
+	tag := field.Tag.Get("tengo")
+	if tag == "-" {
+		return "", tagOptions("")
+	}
+	name, opt, _ := strings.Cut(tag, ",")
+	if name == "" {
+		name = field.Name
+	}
+	return name, tagOptions(opt)
 }
 
 // Contains reports whether a comma-separated list of options
