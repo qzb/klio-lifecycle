@@ -10,5 +10,5 @@ schema:
       max: 40
 script: |
   exec := import("exec")
-  result := exec.command("git", "log", "-1", "--pretty=format:%H").must_output()
+  result := exec.run_silently("git", "log", "-1", "--pretty=format:%H")
   addResult(result[0:40])

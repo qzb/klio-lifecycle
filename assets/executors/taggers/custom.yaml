@@ -13,8 +13,14 @@ schema:
     - type: string
       minLength: 1
 script: |
+  log := import("log")
   if is_string(input.spec) {
     addResult(input.spec)
   } else {
+    log.warn("Using 'format' property in custom tagger is deprecated.")
+    log.warn("Replace:")
+    log.warnf("  - custom:\n      format: %s", input.spec.format)
+    log.warn("With:")
+    log.warnf("  - custom: %s\n", input.spec.format)
     addResult(input.spec.format)
   }

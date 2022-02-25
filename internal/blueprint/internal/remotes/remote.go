@@ -1,12 +1,15 @@
 package remotes
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/exec"
 	log "github.com/g2a-com/klio-logger-go"
 )
 
@@ -87,13 +90,19 @@ func GetDir(projectDir string, uri string, rev string) (string, bool) {
 }
 
 func runGitCmd(dir string, args ...string) error {
-	cmd := exec.NewCommand("git", args...)
-	cmd.Dir = dir
-	cmd.StderrLogger = log.StandardLogger().WithLevel(log.SpamLevel)
-	cmd.StdoutLogger = log.StandardLogger().WithLevel(log.VerboseLevel)
-	cmd.ErrorTextFromStderr = true
+	l := log.StandardLogger()
+	stderr := bytes.Buffer{}
 
-	err := cmd.Run()
+	c := exec.Command("git", args...)
+	c.Dir = dir
+	c.Stdout = l.WithLevel(log.SpamLevel)
+	c.Stderr = io.MultiWriter(l.WithLevel(log.VerboseLevel), &stderr)
 
-	return err
+	err := c.Run()
+	switch err.(type) {
+	case *exec.ExitError:
+		return errors.New(stderr.String())
+	default:
+		return err
+	}
 }

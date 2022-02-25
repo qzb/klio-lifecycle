@@ -37,7 +37,7 @@ script: |
       args += [ "--target", input.spec.buildTarget ]
     }
 
-    exec.command("docker", args...).must_run()
+    exec.run("docker", args...)
 
     addResult(image)
   }

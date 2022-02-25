@@ -5,10 +5,17 @@ script: |
   log := import("log")
   exec := import("exec")
 
-  result := exec.command("git", "describe", "--exact-match", "HEAD").must_output()
+  result := exec.command({
+    name: "git",
+    args: [ "describe", "--exact-match", "HEAD" ]
+    ignore_exit_errors: true,
+    stdout_level: "debug",
+    stderr_level: "debug"
+  }).run()
 
-  if result == "" {
-    log.verbose('cannot find any git tags')
+  if result.exit_code != 0 {
+    log.verbose("cannot find any git tags")
   } else {
-    addResult(result)
+    tag := result.stdout_text[0:len(result.stdout_text)-1]
+    addResult(tag)
   }
