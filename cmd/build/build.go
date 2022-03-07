@@ -9,7 +9,7 @@ import (
 	"github.com/g2a-com/cicd/internal/object"
 	"github.com/g2a-com/cicd/internal/script"
 	"github.com/g2a-com/cicd/internal/utils"
-	log "github.com/g2a-com/klio-logger-go"
+	log "github.com/g2a-com/klio-logger-go/v2"
 )
 
 type options struct {
@@ -54,6 +54,9 @@ func main() {
 		panic(err)
 	}
 
+	// Change working directory
+	os.Chdir(blueprint.GetProject().Directory)
+
 	// Helper for getting executors
 	getExecutor := func(kind object.Kind, name string) object.Executor {
 		e, ok := blueprint.GetExecutor(kind, name)
@@ -76,10 +79,13 @@ func main() {
 		for _, entry := range service.Build.Tags {
 			s := script.New(getExecutor(object.TaggerKind, entry.Type))
 			s.Logger = l
-			s.Dir = service.Directory
 
 			res, err := s.Run(TaggerInput{
 				Spec: entry.Spec,
+				Dirs: Dirs{
+					Project: blueprint.GetProject().Directory,
+					Service: service.Directory,
+				},
 			})
 			if err != nil {
 				panic(err)
@@ -97,11 +103,14 @@ func main() {
 		for _, entry := range service.Build.Artifacts.ToBuild {
 			s := script.New(getExecutor(object.BuilderKind, entry.Type))
 			s.Logger = l
-			s.Dir = service.Directory
 
 			res, err := s.Run(BuilderInput{
 				Spec: entry.Spec,
 				Tags: result.getTags(service),
+				Dirs: Dirs{
+					Project: blueprint.GetProject().Directory,
+					Service: service.Directory,
+				},
 			})
 			if err != nil {
 				panic(err)
@@ -119,12 +128,15 @@ func main() {
 			for _, entry := range service.Build.Artifacts.ToPush {
 				s := script.New(getExecutor(object.PusherKind, entry.Type))
 				s.Logger = l
-				s.Dir = service.Directory
 
 				res, err := s.Run(PusherInput{
 					Spec:      entry.Spec,
 					Tags:      result.getTags(service),
 					Artifacts: result.getArtifacts(service, entry),
+					Dirs: Dirs{
+						Project: blueprint.GetProject().Directory,
+						Service: service.Directory,
+					},
 				})
 				if err != nil {
 					panic(err)

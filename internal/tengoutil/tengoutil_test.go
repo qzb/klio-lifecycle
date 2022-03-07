@@ -416,7 +416,7 @@ func Test_decoding_int_to_type_compatible_with_int_is_valid(t *testing.T) {
 
 func Test_decoding_int_to_any_is_valid(t *testing.T) {
 	object := tengo.Int{Value: 123}
-	result := any(0)
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -577,7 +577,7 @@ func Test_decoding_float_to_type_compatible_with_float64_is_valid(t *testing.T) 
 
 func Test_decoding_float_to_any_is_valid(t *testing.T) {
 	object := tengo.Float{Value: 123}
-	result := any(0)
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -626,7 +626,7 @@ func Test_decoding_string_to_type_compatible_with_string_is_valid(t *testing.T) 
 
 func Test_decoding_string_to_any_is_valid(t *testing.T) {
 	object := tengo.String{Value: "test"}
-	result := any("")
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -704,7 +704,7 @@ func Test_decoding_bytes_to_slice_of_bytes_is_valid(t *testing.T) {
 
 func Test_decoding_bytes_to_any_is_valid(t *testing.T) {
 	object := tengo.Bytes{Value: []byte("abc")}
-	result := any([]byte{})
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -767,7 +767,7 @@ func Test_decoding_array_to_slice_is_valid(t *testing.T) {
 
 func Test_decoding_array_to_any_is_valid(t *testing.T) {
 	object := tengo.ImmutableArray{Value: []tengo.Object{&tengo.Int{Value: 1}, &tengo.String{Value: "test"}, tengo.TrueValue}}
-	result := any([]any{})
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -995,7 +995,7 @@ func Test_decoding_map_of_mixed_type_entries_to_map_of_any_is_valid(t *testing.T
 
 func Test_decoding_map_to_any_is_valid(t *testing.T) {
 	object := tengo.Map{Value: map[string]tengo.Object{"bool": tengo.TrueValue, "string": &tengo.String{}, "int": &tengo.Int{}, "map": &tengo.Map{}}}
-	result := any(0)
+	result := any(nil)
 
 	err := DecodeObject(&object, &result)
 
@@ -1011,6 +1011,21 @@ func Test_decoding_map_to_map_overrides_only_matching_entries(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, map[string]bool{"foo": true, "bar": false}, result)
+}
+
+func Test_decoding_error_to_any_has_the_same_result_as_decoding_errors_value_to_any(t *testing.T) {
+	values := []tengo.Object{tengo.TrueValue, &tengo.Int{Value: 7}, &tengo.String{Value: "abc"}}
+	for _, value := range values {
+		object := tengo.Error{Value: value}
+		result := any(nil)
+		expected := any(nil)
+		DecodeObject(value, &expected)
+
+		err := DecodeObject(&object, &result)
+
+		assert.NoError(t, err)
+		assert.Equal(t, expected, result)
+	}
 }
 
 func Test_decoding_errors_contain_correct_path(t *testing.T) {
@@ -1048,4 +1063,24 @@ func Test_decoding_immutable_map_to_map_is_valid(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, map[string]bool{"foo": true, "bar": false}, result)
+}
+
+func Test_decoding_undefined_to_any(t *testing.T) {
+	object := tengo.UndefinedValue
+	result := any(nil)
+
+	err := DecodeObject(object, &result)
+
+	assert.NoError(t, err)
+	assert.Equal(t, any(nil), result)
+}
+
+func Test_decoding_to_tengo_object(t *testing.T) {
+	object := tengo.TrueValue
+	result := tengo.UndefinedValue
+
+	err := DecodeObject(object, &result)
+
+	assert.NoError(t, err)
+	assert.Equal(t, tengo.TrueValue, result)
 }

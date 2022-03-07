@@ -37,7 +37,11 @@ script: |
       args += [ "--target", input.spec.buildTarget ]
     }
 
-    exec.run("docker", args...)
+    exec.command({
+      name: "docker",
+      args: args,
+      dir: input.dirs.service
+    }).run()
 
     addResult(image)
   }

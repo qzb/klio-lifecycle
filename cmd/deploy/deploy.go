@@ -9,7 +9,7 @@ import (
 	"github.com/g2a-com/cicd/internal/object"
 	"github.com/g2a-com/cicd/internal/script"
 	"github.com/g2a-com/cicd/internal/utils"
-	log "github.com/g2a-com/klio-logger-go"
+	log "github.com/g2a-com/klio-logger-go/v2"
 )
 
 type options struct {
@@ -60,8 +60,13 @@ func main() {
 		panic(err)
 	}
 
+	// Change working directory
+	os.Chdir(blueprint.GetProject().Directory)
+
 	// Deploy
 	l.Printf(`Deploying to environment %q...`, opts.Environment)
+
+	environment, _ := blueprint.GetEnvironment(opts.Environment)
 
 	for _, service := range blueprint.ListServices() {
 		l := l.WithTags(service.Name)
@@ -81,13 +86,17 @@ func main() {
 
 			s := script.New(e)
 			s.Logger = l
-			s.Dir = service.Directory
 
 			res, err := s.Run(DeployerInput{
 				Spec:   entry.Spec,
 				Force:  opts.Force,
 				DryRun: opts.DryRun,
 				Wait:   opts.Wait,
+				Dirs: Dirs{
+					Project:     blueprint.GetProject().Directory,
+					Environment: environment.Directory,
+					Service:     service.Directory,
+				},
 			})
 			if err != nil {
 				panic(err)

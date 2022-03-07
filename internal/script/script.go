@@ -7,22 +7,18 @@ import (
 	"github.com/d5/tengo/v2"
 	"github.com/g2a-com/cicd/internal/object"
 	"github.com/g2a-com/cicd/internal/script/stdlib"
-	logger "github.com/g2a-com/klio-logger-go"
-	"github.com/spf13/afero"
+	logger "github.com/g2a-com/klio-logger-go/v2"
 )
 
 type Script struct {
 	executor object.Executor
-	Fs       afero.Fs
-	Logger   *logger.Logger
-	Dir      string
+	Logger   logger.Logger
 }
 
 func New(executor object.Executor) *Script {
 	script := &Script{}
 	script.executor = executor
 	script.Logger = logger.StandardLogger()
-	script.Fs = afero.NewOsFs()
 	return script
 }
 
@@ -40,16 +36,16 @@ func (s *Script) Run(input any) (results []string, err error) {
 	}
 
 	// Set imports & builtins
-	std := stdlib.Stdlib{
-		Fs:               afero.OsFs{},
-		Logger:           s.Logger,
-		WorkingDirectory: s.Dir,
-		Builtins: map[string]any{
-			"input":     input,
-			"addResult": addResult,
-		},
+	std := stdlib.New(s.Logger)
+	err = std.AddBuiltin("input", input)
+	if err != nil {
+		return results, fmt.Errorf("Cannot initialize standard library for %s:\n\t%s", displayName, err)
 	}
-	err = std.AddToScript(script)
+	err = std.AddBuiltin("addResult", addResult)
+	if err != nil {
+		return results, fmt.Errorf("Cannot initialize standard library for %s:\n\t%s", displayName, err)
+	}
+	err = std.InitializeScript(script)
 	if err != nil {
 		return results, fmt.Errorf("Cannot initialize standard library for %s:\n\t%s", displayName, err)
 	}
