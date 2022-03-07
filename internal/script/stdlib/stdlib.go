@@ -1,45 +1,51 @@
 package stdlib
 
 import (
+	"fmt"
+
 	"github.com/d5/tengo/v2"
 
+	execModule "github.com/g2a-com/cicd/internal/script/stdlib/exec"
+	logModule "github.com/g2a-com/cicd/internal/script/stdlib/log"
 	"github.com/g2a-com/cicd/internal/tengoutil"
-	logger "github.com/g2a-com/klio-logger-go"
-	"github.com/spf13/afero"
+	logger "github.com/g2a-com/klio-logger-go/v2"
 )
 
-type Stdlib struct {
-	Fs               afero.Fs
-	Logger           *logger.Logger
-	WorkingDirectory string
-	Builtins         map[string]any
+type stdlib struct {
+	logger   logger.Logger
+	builtins map[string]any
 }
 
-func (s *Stdlib) AddToScript(script *tengo.Script) error {
+func New(l logger.Logger) *stdlib {
+	abort, _ := tengoutil.ToObject(func(err any) {
+		panic(&AbortError{err})
+	})
+
+	return &stdlib{
+		logger: l,
+		builtins: map[string]any{
+			"abort": abort,
+		},
+	}
+}
+
+func (s *stdlib) AddBuiltin(name string, value any) (err error) {
+	if _, ok := s.builtins[name]; ok {
+		return fmt.Errorf("builtin %q is already registered in standard library", name)
+	}
+	s.builtins[name], err = tengoutil.ToObject(value)
+	return err
+}
+
+func (s *stdlib) InitializeScript(script *tengo.Script) error {
 	// Set imports
-	modules := map[string]map[string]any{
-		"exec": s.createExecModule(),
-		"log":  s.createLogModule(),
-	}
-	ms := tengo.NewModuleMap()
-	for name, attrs := range modules {
-		m, err := tengoutil.ToObjectsMap(attrs)
-		if err != nil {
-			return err
-		}
-		ms.AddBuiltinModule(name, m)
-	}
-	script.SetImports(ms)
+	mm := tengo.NewModuleMap()
+	mm.Add("exec", execModule.New(s.logger))
+	mm.Add("log", logModule.New(s.logger))
+	script.SetImports(mm)
 
 	// Set builtins
-	s.Builtins["abort"] = func(err error) {
-		panic(err)
-	}
-	builtins, err := tengoutil.ToObjectsMap(s.Builtins)
-	if err != nil {
-		return err
-	}
-	for name, obj := range builtins {
+	for name, obj := range s.builtins {
 		err := script.Add(name, obj)
 		if err != nil {
 			return err
@@ -47,4 +53,19 @@ func (s *Stdlib) AddToScript(script *tengo.Script) error {
 	}
 
 	return nil
+}
+
+type AbortError struct {
+	value any
+}
+
+func (e *AbortError) Error() string {
+	return fmt.Sprint(e.value)
+}
+
+func (e *AbortError) Is(err error) bool {
+	if ae, ok := err.(*AbortError); ok {
+		return ae.value == e.value
+	}
+	return false
 }

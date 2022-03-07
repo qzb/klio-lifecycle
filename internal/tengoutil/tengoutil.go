@@ -62,6 +62,13 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 
 	// Return CallableFunc
 	return func(args ...tengo.Object) (obj tengo.Object, err error) {
+		// Return error on panics - when error is returned tengo aborts script execution and returns RuntimeError
+		defer func() {
+			if e, ok := recover().(error); ok && e != nil {
+				err = e
+			}
+		}()
+
 		if (t.IsVariadic() && len(args) < t.NumIn()-1) || (!t.IsVariadic() && len(args) != t.NumIn()) {
 			return nil, tengo.ErrWrongNumArguments
 		}
@@ -120,6 +127,10 @@ func toObject(value any, immutable bool) (_ tengo.Object, err error) {
 			err = fmt.Errorf("%s", r)
 		}
 	}()
+
+	if value == nil {
+		return tengo.UndefinedValue, nil
+	}
 
 	switch x := value.(type) {
 	case TengoEncoder:
@@ -402,8 +413,18 @@ func decodeObject(obj tengo.Object, v reflect.Value) (err error) {
 		}
 
 	case reflect.Interface:
+		if t.NumMethod() != 0 {
+			if t.Implements(reflect.TypeOf((*tengo.Object)(nil)).Elem()) {
+				v.Set(reflect.ValueOf(obj))
+				return
+			}
+			return fmt.Errorf("decoding to not empty interfaces is not supported")
+		}
 		var x reflect.Value
-		switch obj.(type) {
+		switch o := obj.(type) {
+		case *tengo.Undefined:
+			v.Set(reflect.New(reflect.TypeOf((*any)(nil)).Elem()).Elem())
+			return nil
 		case *tengo.Int:
 			x = reflect.New(reflect.TypeOf(0))
 		case *tengo.Float:
@@ -422,6 +443,8 @@ func decodeObject(obj tengo.Object, v reflect.Value) (err error) {
 			m := reflect.MakeMap(reflect.MapOf(reflect.TypeOf(""), reflect.TypeOf((*any)(nil)).Elem()))
 			x = reflect.New(m.Type())
 			x.Elem().Set(m)
+		case *tengo.Error:
+			return decodeObject(o.Value, v)
 		default:
 			return fmt.Errorf("unsupported conversion from interface for type: %s", obj.TypeName())
 		}

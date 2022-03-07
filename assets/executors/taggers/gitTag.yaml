@@ -8,7 +8,7 @@ script: |
   result := exec.command({
     name: "git",
     args: [ "describe", "--exact-match", "HEAD" ]
-    ignore_exit_errors: true,
+    ignore_errors: true,
     stdout_level: "debug",
     stderr_level: "debug"
   }).run()
