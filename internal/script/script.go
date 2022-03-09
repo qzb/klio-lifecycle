@@ -22,7 +22,7 @@ func New(executor object.Executor) *Script {
 	return script
 }
 
-func (s *Script) Run(input any) (results []string, err error) {
+func (s *Script) Run(input interface{}) (results []string, err error) {
 	displayName := strings.ToLower(fmt.Sprintf("%s %q", s.executor.Kind, s.executor.Name))
 
 	s.Logger.WithLevel(logger.SpamLevel).Printf("Running %s", displayName)

@@ -1,11 +1,11 @@
 package main
 
 type DeployerInput struct {
-	Spec   any  `tengo:"spec"`
-	Force  bool `tengo:"force"`
-	DryRun bool `tengo:"dryRun"`
-	Wait   int  `tengo:"wait"`
-	Dirs   Dirs `tengo:"dirs"`
+	Spec   interface{} `tengo:"spec"`
+	Force  bool        `tengo:"force"`
+	DryRun bool        `tengo:"dryRun"`
+	Wait   int         `tengo:"wait"`
+	Dirs   Dirs        `tengo:"dirs"`
 }
 
 type Dirs struct {

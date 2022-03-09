@@ -8,7 +8,7 @@ import (
 	"github.com/icza/dyno"
 )
 
-func toInternal(obj any) any {
+func toInternal(obj interface{}) interface{} {
 	if getString(obj, "apiVersion") != "g2a-cli/v2.0" {
 		obj = toV2(obj)
 	}
@@ -27,22 +27,22 @@ func toInternal(obj any) any {
 	}
 }
 
-func toInternalProject(obj any) any {
-	files := []any{}
+func toInternalProject(obj interface{}) interface{} {
+	files := []interface{}{}
 
 	for _, f := range getSlice(obj, "files") {
 		if isString(f) {
-			files = append(files, map[string]any{"glob": f})
+			files = append(files, map[string]interface{}{"glob": f})
 		} else {
 			if has(f, "git") {
 				gitFiles := get(f, "git", "files")
 				if isString(gitFiles) {
-					gitFiles = []any{gitFiles}
+					gitFiles = []interface{}{gitFiles}
 				}
 				for _, glob := range getSlice(gitFiles) {
-					files = append(files, map[string]any{
+					files = append(files, map[string]interface{}{
 						"glob": glob,
-						"git": map[string]any{
+						"git": map[string]interface{}{
 							"url": getString(f, "git", "url"),
 							"rev": getString(f, "git", "rev"),
 						},
@@ -52,7 +52,7 @@ func toInternalProject(obj any) any {
 		}
 	}
 
-	return map[string]any{
+	return map[string]interface{}{
 		"kind":      "Project",
 		"files":     files,
 		"name":      getString(obj, "name"),
@@ -60,12 +60,12 @@ func toInternalProject(obj any) any {
 	}
 }
 
-func toInternalService(obj any) any {
+func toInternalService(obj interface{}) interface{} {
 	toBuild := mapSlice(getSlice(obj, "artifacts"), toInternalEntry)
 	tags := mapSlice(getSlice(obj, "tags"), toInternalEntry)
 	releases := mapSlice(getSlice(obj, "releases"), toInternalEntry)
 
-	toPush := []any{}
+	toPush := []interface{}{}
 	for i, v := range getSlice(obj, "artifacts") {
 		e := toInternalEntry(i, or(get(v, "push"), v))
 		if getString(e, "type") != "" {
@@ -73,32 +73,32 @@ func toInternalService(obj any) any {
 		}
 	}
 
-	tasks := map[string]any{}
+	tasks := map[string]interface{}{}
 	for k, v := range getMap(obj, "tasks") {
 		tasks[k] = mapSlice(getSlice(v), toInternalEntry)
 	}
 
-	return map[string]any{
+	return map[string]interface{}{
 		"kind": "Service",
 		"name": getString(obj, "name"),
-		"build": map[string]any{
-			"artifacts": map[string]any{
+		"build": map[string]interface{}{
+			"artifacts": map[string]interface{}{
 				"toBuild": toBuild,
 				"toPush":  toPush,
 			},
 			"tags": tags,
 		},
-		"deploy": map[string]any{
+		"deploy": map[string]interface{}{
 			"releases": releases,
 		},
-		"run": map[string]any{
+		"run": map[string]interface{}{
 			"tasks": tasks,
 		},
 	}
 }
 
-func toInternalEnvironment(obj any) any {
-	return map[string]any{
+func toInternalEnvironment(obj interface{}) interface{} {
+	return map[string]interface{}{
 		"kind":           "Environment",
 		"name":           getString(obj, "name"),
 		"deployServices": getSlice(obj, "deployServices"),
@@ -106,12 +106,12 @@ func toInternalEnvironment(obj any) any {
 	}
 }
 
-func toInternalExecutor(obj any) any {
+func toInternalExecutor(obj interface{}) interface{} {
 	schema, err := json.Marshal(getMap(obj, "schema"))
 	if err != nil {
 		panic(err)
 	}
-	return map[string]any{
+	return map[string]interface{}{
 		"kind":   getString(obj, "kind"),
 		"name":   getString(obj, "name"),
 		"script": getString(obj, "script"),
@@ -119,22 +119,22 @@ func toInternalExecutor(obj any) any {
 	}
 }
 
-func toInternalEntry(i int, obj any) any {
+func toInternalEntry(i int, obj interface{}) interface{} {
 	if obj == false {
 		return nil
 	}
 	if isString(obj) {
-		return map[string]any{"index": int64(i), "type": obj, "spec": nil}
+		return map[string]interface{}{"index": int64(i), "type": obj, "spec": nil}
 	}
 	for k, v := range getMap(obj) {
 		if k != "push" {
-			return map[string]any{"index": int64(i), "type": k, "spec": v}
+			return map[string]interface{}{"index": int64(i), "type": k, "spec": v}
 		}
 	}
 	return nil
 }
 
-func toV2(obj any) any {
+func toV2(obj interface{}) interface{} {
 	if getString(obj, "apiVersion") != "g2a-cli/v1beta4" {
 		panic(fmt.Errorf("unsupported version: %s", get(obj, "apiVersion")))
 	}
@@ -151,10 +151,10 @@ func toV2(obj any) any {
 	}
 }
 
-func toV2Project(obj any) any {
-	files := []any{
-		map[string]any{
-			"git": map[string]any{
+func toV2Project(obj interface{}) interface{} {
+	files := []interface{}{
+		map[string]interface{}{
+			"git": map[string]interface{}{
 				"url":   "git@github.com:g2a-com/klio-lifecycle.git",
 				"rev":   "main",
 				"files": "assets/executors/*/*.yaml",
@@ -178,27 +178,27 @@ func toV2Project(obj any) any {
 		files = append(files, "environments/*/environment.yaml")
 	}
 
-	return map[string]any{
+	return map[string]interface{}{
 		"apiVersion": "g2a-cli/v2.0",
 		"kind":       "Project",
 		"name":       or(get(obj, "name"), "project"),
 		"files":      files,
-		"tasks":      map[string]any{},
-		"variables":  map[string]any{},
+		"tasks":      map[string]interface{}{},
+		"variables":  map[string]interface{}{},
 	}
 }
 
-func toV2Service(obj any) any {
+func toV2Service(obj interface{}) interface{} {
 	artifacts := getSlice(obj, "build", "artifacts")
 
 	if hooks := get(obj, "hooks", "pre-build"); hooks != nil {
-		artifacts = prepend(artifacts, map[string]any{
+		artifacts = prepend(artifacts, map[string]interface{}{
 			"script": hooksToScript(hooks),
 			"push":   false,
 		})
 	}
 	if hooks := get(obj, "hooks", "post-build"); hooks != nil {
-		artifacts = append(artifacts, map[string]any{
+		artifacts = append(artifacts, map[string]interface{}{
 			"script": hooksToScript(hooks),
 			"push":   false,
 		})
@@ -207,35 +207,35 @@ func toV2Service(obj any) any {
 	releases := getSlice(obj, "deploy", "releases")
 
 	if hooks := get(obj, "hooks", "pre-deploy"); hooks != nil {
-		releases = prepend(releases, map[string]any{
+		releases = prepend(releases, map[string]interface{}{
 			"script": hooksToScript(hooks),
 		})
 	}
 	if hooks := get(obj, "hooks", "post-deploy"); hooks != nil {
-		releases = append(releases, map[string]any{
+		releases = append(releases, map[string]interface{}{
 			"script": hooksToScript(hooks),
 		})
 	}
 
-	tags := []any{}
+	tags := []interface{}{}
 
 	for k, v := range getMap(obj, "build", "tagPolicy") {
-		tags = append(tags, map[string]any{k: v})
+		tags = append(tags, map[string]interface{}{k: v})
 	}
 
-	return map[string]any{
+	return map[string]interface{}{
 		"apiVersion": "g2a-cli/v2.0",
 		"kind":       "Service",
 		"name":       getString(obj, "name"),
 		"tags":       tags,
 		"artifacts":  artifacts,
 		"releases":   releases,
-		"tasks":      map[string]any{},
+		"tasks":      map[string]interface{}{},
 	}
 }
 
-func toV2Environment(obj any) any {
-	return map[string]any{
+func toV2Environment(obj interface{}) interface{} {
+	return map[string]interface{}{
 		"apiVersion":     "g2a-cli/v2.0",
 		"kind":           "Environment",
 		"name":           getString(obj, "name"),
@@ -244,15 +244,15 @@ func toV2Environment(obj any) any {
 	}
 }
 
-func hooksToScript(hooks any) any {
+func hooksToScript(hooks interface{}) interface{} {
 	sh := "set -e"
 	for _, hook := range getSlice(hooks) {
 		sh += fmt.Sprintf("\n%s", hook)
 	}
-	return map[string]any{"sh": sh}
+	return map[string]interface{}{"sh": sh}
 }
 
-func getString(v any, path ...any) string {
+func getString(v interface{}, path ...interface{}) string {
 	str, err := dyno.GetString(v, path...)
 	if err != nil {
 		return ""
@@ -260,28 +260,28 @@ func getString(v any, path ...any) string {
 	return str
 }
 
-func isString(v any, path ...any) bool {
+func isString(v interface{}, path ...interface{}) bool {
 	_, err := dyno.GetString(v, path...)
 	return err == nil
 }
 
-func getSlice(v any, path ...any) []any {
+func getSlice(v interface{}, path ...interface{}) []interface{} {
 	res, err := dyno.GetSlice(v, path...)
 	if err != nil {
-		return []any{}
+		return []interface{}{}
 	}
 	return res
 }
 
-func getMap(v any, path ...any) map[string]any {
+func getMap(v interface{}, path ...interface{}) map[string]interface{} {
 	res, err := dyno.GetMapS(v, path...)
 	if err != nil {
-		return map[string]any{}
+		return map[string]interface{}{}
 	}
 	return res
 }
 
-func get(v any, path ...any) any {
+func get(v interface{}, path ...interface{}) interface{} {
 	val, err := dyno.Get(v, path...)
 	if err != nil {
 		return nil
@@ -289,12 +289,12 @@ func get(v any, path ...any) any {
 	return val
 }
 
-func has(v any, path ...any) bool {
+func has(v interface{}, path ...interface{}) bool {
 	_, err := dyno.Get(v, path...)
 	return err == nil
 }
 
-func or(v1 any, v2 any) any {
+func or(v1 interface{}, v2 interface{}) interface{} {
 	if v1 != nil {
 		return v1
 	} else {
@@ -302,14 +302,14 @@ func or(v1 any, v2 any) any {
 	}
 }
 
-func mapSlice(v []any, fn func(int, any) any) []any {
-	res := make([]any, len(v), len(v))
+func mapSlice(v []interface{}, fn func(int, interface{}) interface{}) []interface{} {
+	res := make([]interface{}, len(v))
 	for i := range v {
 		res[i] = fn(i, v[i])
 	}
 	return res
 }
 
-func prepend(slice []any, elems ...any) []any {
+func prepend(slice []interface{}, elems ...interface{}) []interface{} {
 	return append(elems, slice...)
 }

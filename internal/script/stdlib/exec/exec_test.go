@@ -21,7 +21,7 @@ func Test_run_runs_command(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"echo", "abc", "123"}, cmd.Argv)
-	assert.Equal(t, map[string]any{
+	assert.Equal(t, map[string]interface{}{
 		"stdout_text": "stdout",
 		"stderr_text": "stderr",
 		"error":       nil,
@@ -35,11 +35,11 @@ func Test_run_prints_logs_at_info_and_error_levels(t *testing.T) {
 	mod := New(log)
 	mod.exec = prepareFakeExec(cmd)
 
-	run(mod, `exec.run("cmd")`)
+	_, _ = run(mod, `exec.run("cmd")`)
 
 	assert.Equal(t, []fakelogger.Message{
-		{Level: "info", Method: "Write", Args: []any{[]byte("stdout")}},
-		{Level: "error", Method: "Write", Args: []any{[]byte("stderr")}},
+		{Level: "info", Method: "Write", Args: []interface{}{[]byte("stdout")}},
+		{Level: "error", Method: "Write", Args: []interface{}{[]byte("stderr")}},
 	}, log.Messages)
 }
 
@@ -62,7 +62,7 @@ func Test_run_silently_runs_command(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"echo", "abc", "123"}, cmd.Argv)
-	assert.Equal(t, map[string]any{
+	assert.Equal(t, map[string]interface{}{
 		"stdout_text": "stdout",
 		"stderr_text": "stderr",
 		"error":       nil,
@@ -76,11 +76,11 @@ func Test_run_silently_prints_logs_at_debug_and_error_levels(t *testing.T) {
 	mod := New(log)
 	mod.exec = prepareFakeExec(cmd)
 
-	run(mod, `exec.run_silently("cmd")`)
+	_, _ = run(mod, `exec.run_silently("cmd")`)
 
 	assert.Equal(t, []fakelogger.Message{
-		{Level: "debug", Method: "Write", Args: []any{[]byte("stdout")}},
-		{Level: "error", Method: "Write", Args: []any{[]byte("stderr")}},
+		{Level: "debug", Method: "Write", Args: []interface{}{[]byte("stdout")}},
+		{Level: "error", Method: "Write", Args: []interface{}{[]byte("stderr")}},
 	}, log.Messages)
 }
 
@@ -103,7 +103,7 @@ func Test_command_run_runs_command(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"echo", "abc", "123"}, cmd.Argv)
-	assert.Equal(t, map[string]any{
+	assert.Equal(t, map[string]interface{}{
 		"stdout_text": "stdout",
 		"stderr_text": "stderr",
 		"error":       nil,
@@ -117,11 +117,11 @@ func Test_command_run_by_default_prints_logs_at_info_and_error_levels(t *testing
 	mod := New(log)
 	mod.exec = prepareFakeExec(cmd)
 
-	run(mod, `exec.command({ name: "cmd" }).run()`)
+	_, _ = run(mod, `exec.command({ name: "cmd" }).run()`)
 
 	assert.Equal(t, []fakelogger.Message{
-		{Level: "info", Method: "Write", Args: []any{[]byte("stdout")}},
-		{Level: "error", Method: "Write", Args: []any{[]byte("stderr")}},
+		{Level: "info", Method: "Write", Args: []interface{}{[]byte("stdout")}},
+		{Level: "error", Method: "Write", Args: []interface{}{[]byte("stderr")}},
 	}, log.Messages)
 }
 
@@ -131,11 +131,11 @@ func Test_command_run_prints_logs_at_specified_levels(t *testing.T) {
 	mod := New(log)
 	mod.exec = prepareFakeExec(cmd)
 
-	run(mod, `exec.command({ name: "cmd", stdout_level: "verbose", stderr_level: "warn" }).run()`)
+	_, _ = run(mod, `exec.command({ name: "cmd", stdout_level: "verbose", stderr_level: "warn" }).run()`)
 
 	assert.Equal(t, []fakelogger.Message{
-		{Level: "verbose", Method: "Write", Args: []any{[]byte("stdout")}},
-		{Level: "warn", Method: "Write", Args: []any{[]byte("stderr")}},
+		{Level: "verbose", Method: "Write", Args: []interface{}{[]byte("stdout")}},
+		{Level: "warn", Method: "Write", Args: []interface{}{[]byte("stderr")}},
 	}, log.Messages)
 }
 
@@ -157,7 +157,7 @@ func Test_command_run_returns_result_with_error_when_ignore_errors_option_is_ena
 	result, err := run(mod, `exec.command({ name: "cmd", ignore_errors: true }).run()`)
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]any{
+	assert.Equal(t, map[string]interface{}{
 		"stdout_text": "stdout",
 		"stderr_text": "stderr",
 		"error":       "exit code != 0", // This message is set by prepareFakeCmd function
@@ -177,7 +177,7 @@ func Test_command_run_returns_result_with_minus_one_exit_code_when_command_canno
 	result, err := run(mod, `exec.command({ name: "cmd", ignore_errors: true }).run()`)
 
 	assert.NoError(t, err)
-	assert.Equal(t, map[string]any{
+	assert.Equal(t, map[string]interface{}{
 		"stdout_text": "",
 		"stderr_text": "",
 		"error":       "command not found",
@@ -207,7 +207,7 @@ func Test_command_run_runs_command_with_specified_env_variables(t *testing.T) {
 	assert.Equal(t, []string{"FOO=bar", "egg=spam"}, cmd.Env)
 }
 
-func run(m *module, code string) (result any, err error) {
+func run(m *module, code string) (result interface{}, err error) {
 	modules := tengo.NewModuleMap()
 	modules.Add("exec", m)
 	script := tengo.NewScript([]byte(`exec := import("exec"); result := ` + code))
@@ -220,7 +220,7 @@ func run(m *module, code string) (result any, err error) {
 }
 
 func prepareFakeExec(commands ...*testingexec.FakeCmd) *testingexec.FakeExec {
-	actions := make([]testingexec.FakeCommandAction, len(commands), len(commands))
+	actions := make([]testingexec.FakeCommandAction, len(commands))
 	for i := range actions {
 		actions[i] = func(cmd string, args ...string) exec.Cmd {
 			return testingexec.InitFakeCmd(commands[i], cmd, args...)

@@ -18,7 +18,7 @@ type options struct {
 	Force       bool              `flag:"force" help:"Force release update"`
 	DryRun      bool              `flag:"dry-run" help:"Simulate a deploy"`
 	Wait        int               `flag:"wait" default:"0" help:"Maximum time in seconds to wait for deploy to complete, 0 - don't wait"`
-	Services    []string          `flag:"services" alias:"s" help:"List of services to deploy (overrides environment confiugration)"`
+	Services    []string          `flag:"services" alias:"s" help:"List of services to deploy (overrides environment configuration)"`
 	Params      map[string]string `flag:"param" help:"Parameters to use in configuration files (key=value pairs)"`
 	ProjectFile string            `flag:"project-file" alias:"f" help:"Path to project file"`
 	ResultFile  string            `flag:"result-file" help:"Where to write result file"`
@@ -61,7 +61,10 @@ func main() {
 	}
 
 	// Change working directory
-	os.Chdir(blueprint.GetProject().Directory)
+	err = os.Chdir(blueprint.GetProject().Directory)
+	if err != nil {
+		panic(err)
+	}
 
 	// Deploy
 	l.Printf(`Deploying to environment %q...`, opts.Environment)

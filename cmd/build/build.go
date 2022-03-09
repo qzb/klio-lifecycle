@@ -55,7 +55,10 @@ func main() {
 	}
 
 	// Change working directory
-	os.Chdir(blueprint.GetProject().Directory)
+	err = os.Chdir(blueprint.GetProject().Directory)
+	if err != nil {
+		panic(err)
+	}
 
 	// Helper for getting executors
 	getExecutor := func(kind object.Kind, name string) object.Executor {

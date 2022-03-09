@@ -23,8 +23,8 @@ func New(logger logger.Logger) *module {
 	}
 }
 
-func (m *module) Import(name string) (any, error) {
-	return tengoutil.ToImmutableObject(map[string]any{
+func (m *module) Import(name string) (interface{}, error) {
+	return tengoutil.ToImmutableObject(map[string]interface{}{
 		"__module_name__": name,
 		"command":         m.command,
 		"run":             m.run,
@@ -70,7 +70,7 @@ type cmd struct {
 }
 
 func (c *cmd) EncodeTengoObject() (tengo.Object, error) {
-	return tengoutil.ToImmutableObject(map[string]any{
+	return tengoutil.ToImmutableObject(map[string]interface{}{
 		"run": c.run,
 	})
 }

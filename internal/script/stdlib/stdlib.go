@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/d5/tengo/v2"
-
 	execModule "github.com/g2a-com/cicd/internal/script/stdlib/exec"
 	logModule "github.com/g2a-com/cicd/internal/script/stdlib/log"
 	"github.com/g2a-com/cicd/internal/tengoutil"
@@ -13,23 +12,23 @@ import (
 
 type stdlib struct {
 	logger   logger.Logger
-	builtins map[string]any
+	builtins map[string]interface{}
 }
 
 func New(l logger.Logger) *stdlib {
-	abort, _ := tengoutil.ToObject(func(err any) {
+	abort, _ := tengoutil.ToObject(func(err interface{}) {
 		panic(&AbortError{err})
 	})
 
 	return &stdlib{
 		logger: l,
-		builtins: map[string]any{
+		builtins: map[string]interface{}{
 			"abort": abort,
 		},
 	}
 }
 
-func (s *stdlib) AddBuiltin(name string, value any) (err error) {
+func (s *stdlib) AddBuiltin(name string, value interface{}) (err error) {
 	if _, ok := s.builtins[name]; ok {
 		return fmt.Errorf("builtin %q is already registered in standard library", name)
 	}
@@ -56,7 +55,7 @@ func (s *stdlib) InitializeScript(script *tengo.Script) error {
 }
 
 type AbortError struct {
-	value any
+	value interface{}
 }
 
 func (e *AbortError) Error() string {
