@@ -16,8 +16,8 @@ func New(logger logger.Logger) *module {
 	}
 }
 
-func (m *module) Import(name string) (any, error) {
-	return tengoutil.ToImmutableObject(map[string]any{
+func (m *module) Import(name string) (interface{}, error) {
+	return tengoutil.ToImmutableObject(map[string]interface{}{
 		"__module_name__": name,
 		"print":           createPrintFunc(m.logger.WithLevel(logger.InfoLevel)),
 		"printf":          createPrintfFunc(m.logger.WithLevel(logger.InfoLevel)),

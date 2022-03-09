@@ -14,18 +14,18 @@ type TengoEncoder interface {
 	EncodeTengoObject() (tengo.Object, error)
 }
 
-// ToObjects - converts input to tengo.Object
-func ToObject(value any) (tengo.Object, error) {
+// ToObjects - converts input to tengo.Object.
+func ToObject(value interface{}) (tengo.Object, error) {
 	return toObject(value, false)
 }
 
 // ToImmutableObject - converts input to tengo.Object, uses immutable maps and arrays instead of regular ones.
-func ToImmutableObject(value any) (tengo.Object, error) {
+func ToImmutableObject(value interface{}) (tengo.Object, error) {
 	return toObject(value, true)
 }
 
-// ToObjectsMap - runs ToObject on map entries, fixes function names
-func ToObjectsMap(attrs map[string]any) (map[string]tengo.Object, error) {
+// ToObjectsMap - runs ToObject on map entries, fixes function names.
+func ToObjectsMap(attrs map[string]interface{}) (map[string]tengo.Object, error) {
 	obj, err := toObject(attrs, false)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func ToObjectsMap(attrs map[string]any) (map[string]tengo.Object, error) {
 
 // ToCallableFunc - converts regular function to one compatible with Tengo.
 // Returned function validates number and types of arguments.
-func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
+func ToCallableFunc(fn interface{}) (tengo.CallableFunc, error) {
 	// Check if it's already a callable function
 	if cf, ok := fn.(tengo.CallableFunc); ok {
 		return cf, nil
@@ -52,7 +52,7 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 
 	// Check what exactly this function returns.
 	returnsError := t.NumOut() != 0 && t.Out(t.NumOut()-1).Implements(reflect.TypeOf((*error)(nil)).Elem())
-	returnsResult := t.NumOut() == 2 || (t.NumOut() == 1 && !returnsError)
+	returnsResult := t.NumOut() > 1 || (t.NumOut() == 1 && !returnsError)
 
 	if t.NumOut() > 2 || (t.NumOut() > 1 && !returnsError) {
 		return nil, errors.New("Cannot convert functions returning more than 2 results")
@@ -121,7 +121,7 @@ func ToCallableFunc(fn any) (tengo.CallableFunc, error) {
 	}, nil
 }
 
-func toObject(value any, immutable bool) (_ tengo.Object, err error) {
+func toObject(value interface{}, immutable bool) (_ tengo.Object, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("%s", r)
@@ -255,7 +255,7 @@ func (e *DecodingError) Error() string {
 	return msg
 }
 
-func DecodeObject(obj tengo.Object, v any) error {
+func DecodeObject(obj tengo.Object, v interface{}) error {
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr || rv.IsNil() {
 		return errors.New("FromObject accepts only non-empty pointers")
@@ -267,7 +267,7 @@ func decodeObject(obj tengo.Object, v reflect.Value) (err error) {
 	t := v.Type()
 
 	switch v.Kind() {
-	case reflect.Pointer:
+	case reflect.Ptr:
 		if _, ok := obj.(*tengo.Undefined); ok {
 			return
 		}
@@ -423,12 +423,12 @@ func decodeObject(obj tengo.Object, v reflect.Value) (err error) {
 		var x reflect.Value
 		switch o := obj.(type) {
 		case *tengo.Undefined:
-			v.Set(reflect.New(reflect.TypeOf((*any)(nil)).Elem()).Elem())
+			v.Set(reflect.New(reflect.TypeOf((*interface{})(nil)).Elem()).Elem())
 			return nil
 		case *tengo.Int:
 			x = reflect.New(reflect.TypeOf(0))
 		case *tengo.Float:
-			x = reflect.New(reflect.TypeOf(.0))
+			x = reflect.New(reflect.TypeOf(0.0))
 		case *tengo.Bool:
 			x = reflect.New(reflect.TypeOf(false))
 		case *tengo.Char:
@@ -438,9 +438,9 @@ func decodeObject(obj tengo.Object, v reflect.Value) (err error) {
 		case *tengo.Bytes:
 			x = reflect.New(reflect.SliceOf(reflect.TypeOf(byte(0))))
 		case *tengo.Array, *tengo.ImmutableArray:
-			x = reflect.New(reflect.SliceOf(reflect.TypeOf((*any)(nil)).Elem()))
+			x = reflect.New(reflect.SliceOf(reflect.TypeOf((*interface{})(nil)).Elem()))
 		case *tengo.Map, *tengo.ImmutableMap:
-			m := reflect.MakeMap(reflect.MapOf(reflect.TypeOf(""), reflect.TypeOf((*any)(nil)).Elem()))
+			m := reflect.MakeMap(reflect.MapOf(reflect.TypeOf(""), reflect.TypeOf((*interface{})(nil)).Elem()))
 			x = reflect.New(m.Type())
 			x.Elem().Set(m)
 		case *tengo.Error:

@@ -13,7 +13,7 @@ func Test_builtin_abort_function_aborts_script_with_specified_error(t *testing.T
 	stdlib := New(fakelogger.New())
 
 	script := tengo.NewScript([]byte(`abort("error message")`))
-	stdlib.InitializeScript(script)
+	_ = stdlib.InitializeScript(script)
 	_, err := script.Run()
 
 	assert.ErrorIs(t, err, &AbortError{"error message"})
@@ -23,7 +23,7 @@ func Test_builtin_abort_function_accepts_tengo_errors(t *testing.T) {
 	stdlib := New(fakelogger.New())
 
 	script := tengo.NewScript([]byte(`abort(error(7))`))
-	stdlib.InitializeScript(script)
+	_ = stdlib.InitializeScript(script)
 	_, err := script.Run()
 
 	assert.ErrorIs(t, err, &AbortError{7})
@@ -36,7 +36,7 @@ func Test_all_modules_can_be_imported(t *testing.T) {
 			stdlib := New(fakelogger.New())
 
 			script := tengo.NewScript([]byte(fmt.Sprintf(`import("%s")`, module)))
-			stdlib.InitializeScript(script)
+			_ = stdlib.InitializeScript(script)
 			_, err := script.Run()
 
 			assert.NoError(t, err)
@@ -49,7 +49,7 @@ func Test_additional_builtins_are_available_in_script(t *testing.T) {
 	stdlib := New(fakelogger.New())
 
 	errAdd := stdlib.AddBuiltin("test", 7)
-	stdlib.InitializeScript(script)
+	_ = stdlib.InitializeScript(script)
 	compiled, errRun := script.Run()
 
 	assert.NoError(t, errAdd)
@@ -62,7 +62,7 @@ func Test_logger_is_passed_down_to_modules(t *testing.T) {
 	stdlib := New(log)
 
 	script := tengo.NewScript([]byte(`import("log").print("test")`))
-	stdlib.InitializeScript(script)
+	_ = stdlib.InitializeScript(script)
 	_, err := script.Run()
 
 	assert.NoError(t, err)

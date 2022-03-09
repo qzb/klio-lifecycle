@@ -20,7 +20,7 @@ func parseTag(field reflect.StructField) (string, tagOptions) {
 	if tag == "-" {
 		return "", tagOptions("")
 	}
-	name, opt, _ := strings.Cut(tag, ",")
+	name, opt, _ := stringsCut(tag, ",")
 	if name == "" {
 		name = field.Name
 	}
@@ -37,10 +37,18 @@ func (o tagOptions) Contains(optionName string) bool {
 	s := string(o)
 	for s != "" {
 		var name string
-		name, s, _ = strings.Cut(s, ",")
+		name, s, _ = stringsCut(s, ",")
 		if name == optionName {
 			return true
 		}
 	}
 	return false
+}
+
+// TODO: replace with strings.Cut after migration to go 1.18.
+func stringsCut(s, sep string) (before, after string, found bool) {
+	if i := strings.Index(s, sep); i >= 0 {
+		return s[:i], s[i+len(sep):], true
+	}
+	return s, "", false
 }

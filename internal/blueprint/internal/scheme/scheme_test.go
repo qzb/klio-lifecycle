@@ -10,288 +10,288 @@ import (
 func TestToInternal(t *testing.T) {
 	cases := []struct {
 		name     string
-		input    map[string]any
-		expected map[string]any
+		input    map[string]interface{}
+		expected map[string]interface{}
 	}{
 		{
 			name: "v1beta4/Service/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Service",
 				"name":       "test",
-				"hooks": map[string]any{
-					"pre-build": []any{
+				"hooks": map[string]interface{}{
+					"pre-build": []interface{}{
 						"echo pre-build",
 						"cat file >&2",
 					},
-					"post-build": []any{
+					"post-build": []interface{}{
 						"echo post-build",
 						"cat file >&2",
 					},
-					"pre-deploy": []any{
+					"pre-deploy": []interface{}{
 						"echo pre-deploy",
 						"cat file >&2",
 					},
-					"post-deploy": []any{
+					"post-deploy": []interface{}{
 						"echo post-deploy",
 						"cat file >&2",
 					},
 				},
-				"build": map[string]any{
-					"tagPolicy": map[string]any{
-						"gitSha": map[string]any{"length": 7},
+				"build": map[string]interface{}{
+					"tagPolicy": map[string]interface{}{
+						"gitSha": map[string]interface{}{"length": 7},
 					},
-					"artifacts": []any{
-						map[string]any{
-							"docker": map[string]any{},
+					"artifacts": []interface{}{
+						map[string]interface{}{
+							"docker": map[string]interface{}{},
 						},
-						map[string]any{
-							"docker": map[string]any{"image": "example.com/test/image"},
+						map[string]interface{}{
+							"docker": map[string]interface{}{"image": "example.com/test/image"},
 						},
 					},
 				},
-				"deploy": map[string]any{
-					"releases": []any{
-						map[string]any{
-							"helm": map[string]any{"chartPath": "bitnami/redis"},
+				"deploy": map[string]interface{}{
+					"releases": []interface{}{
+						map[string]interface{}{
+							"helm": map[string]interface{}{"chartPath": "bitnami/redis"},
 						},
 					},
 				},
 				"extra": true,
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Service",
 				"name": "test",
-				"build": map[string]any{
-					"tags": []any{
-						map[string]any{
+				"build": map[string]interface{}{
+					"tags": []interface{}{
+						map[string]interface{}{
 							"index": int64(0),
-							"spec":  map[string]any{"length": 7},
+							"spec":  map[string]interface{}{"length": 7},
 							"type":  "gitSha",
 						},
 					},
-					"artifacts": map[string]any{
-						"toBuild": []any{
-							map[string]any{
+					"artifacts": map[string]interface{}{
+						"toBuild": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
-								"spec": map[string]any{
+								"spec": map[string]interface{}{
 									"sh": "set -e\necho pre-build\ncat file >&2",
 								},
 								"type": "script",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(1),
-								"spec":  map[string]any{},
+								"spec":  map[string]interface{}{},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(2),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(3),
-								"spec": map[string]any{
+								"spec": map[string]interface{}{
 									"sh": "set -e\necho post-build\ncat file >&2",
 								},
 								"type": "script",
 							},
 						},
-						"toPush": []any{
-							map[string]any{
+						"toPush": []interface{}{
+							map[string]interface{}{
 								"index": int64(1),
-								"spec":  map[string]any{},
+								"spec":  map[string]interface{}{},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(2),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
 						},
 					},
 				},
-				"deploy": map[string]any{
-					"releases": []any{
-						map[string]any{
+				"deploy": map[string]interface{}{
+					"releases": []interface{}{
+						map[string]interface{}{
 							"index": int64(0),
-							"spec": map[string]any{
+							"spec": map[string]interface{}{
 								"sh": "set -e\necho pre-deploy\ncat file >&2",
 							},
 							"type": "script",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(1),
-							"spec":  map[string]any{"chartPath": "bitnami/redis"},
+							"spec":  map[string]interface{}{"chartPath": "bitnami/redis"},
 							"type":  "helm",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(2),
-							"spec": map[string]any{
+							"spec": map[string]interface{}{
 								"sh": "set -e\necho post-deploy\ncat file >&2",
 							},
 							"type": "script",
 						},
 					},
 				},
-				"run": map[string]any{
-					"tasks": map[string]any{},
+				"run": map[string]interface{}{
+					"tasks": map[string]interface{}{},
 				},
 			},
 		},
 		{
 			name: "v1beta4/Service/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Service",
 				"name":       "test",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Service",
 				"name": "test",
-				"build": map[string]any{
-					"artifacts": map[string]any{
-						"toBuild": []any{},
-						"toPush":  []any{},
+				"build": map[string]interface{}{
+					"artifacts": map[string]interface{}{
+						"toBuild": []interface{}{},
+						"toPush":  []interface{}{},
 					},
-					"tags": []any{},
+					"tags": []interface{}{},
 				},
-				"deploy": map[string]any{
-					"releases": []any{},
+				"deploy": map[string]interface{}{
+					"releases": []interface{}{},
 				},
-				"run": map[string]any{
-					"tasks": map[string]any{},
+				"run": map[string]interface{}{
+					"tasks": map[string]interface{}{},
 				},
 			},
 		},
 		{
 			name: "v1beta4/Project/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Project",
-				"services": []any{
+				"services": []interface{}{
 					".",
 					"dir",
 					"dirs/*/",
 				},
-				"environments": []any{
+				"environments": []interface{}{
 					"envs/*",
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"test": "value",
 				},
 				"extra": true,
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Project",
 				"name": "project",
-				"files": []any{
-					map[string]any{
-						"git": map[string]any{
+				"files": []interface{}{
+					map[string]interface{}{
+						"git": map[string]interface{}{
 							"url": "git@github.com:g2a-com/klio-lifecycle.git",
 							"rev": "main",
 						},
 						"glob": "assets/executors/*/*.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "service.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "dir/service.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "dirs/*/service.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "envs/*/environment.yaml",
 					},
 				},
-				"variables": map[string]any{},
+				"variables": map[string]interface{}{},
 			},
 		},
 		{
 			name: "v1beta4/Project/min_plus_defaults",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Project",
-				"services": []any{
+				"services": []interface{}{
 					"services/*",
 				},
-				"environments": []any{
+				"environments": []interface{}{
 					"environments/*",
 				},
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Project",
 				"name": "project",
-				"files": []any{
-					map[string]any{
-						"git": map[string]any{
+				"files": []interface{}{
+					map[string]interface{}{
+						"git": map[string]interface{}{
 							"url": "git@github.com:g2a-com/klio-lifecycle.git",
 							"rev": "main",
 						},
 						"glob": "assets/executors/*/*.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "services/*/service.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "environments/*/environment.yaml",
 					},
 				},
-				"variables": map[string]any{},
+				"variables": map[string]interface{}{},
 			},
 		},
 		{
 			name: "v1beta4/Project/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Project",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Project",
 				"name": "project",
-				"files": []any{
-					map[string]any{
-						"git": map[string]any{
+				"files": []interface{}{
+					map[string]interface{}{
+						"git": map[string]interface{}{
 							"url": "git@github.com:g2a-com/klio-lifecycle.git",
 							"rev": "main",
 						},
 						"glob": "assets/executors/*/*.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "services/*/service.yaml",
 					},
-					map[string]any{
+					map[string]interface{}{
 						"glob": "environments/*/environment.yaml",
 					},
 				},
-				"variables": map[string]any{},
+				"variables": map[string]interface{}{},
 			},
 		},
 		{
 			name: "v1beta4/Environment/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Environment",
 				"name":       "test",
-				"deployServices": []any{
+				"deployServices": []interface{}{
 					"serviceA",
 					"serviceB",
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"varA": "value",
 					"varB": "value",
 				},
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Environment",
 				"name": "test",
-				"deployServices": []any{
+				"deployServices": []interface{}{
 					"serviceA",
 					"serviceB",
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"varA": "value",
 					"varB": "value",
 				},
@@ -299,77 +299,77 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v1beta4/Environment/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v1beta4",
 				"kind":       "Environment",
 				"name":       "test",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":           "Environment",
 				"name":           "test",
-				"deployServices": []any{},
-				"variables":      map[string]any{},
+				"deployServices": []interface{}{},
+				"variables":      map[string]interface{}{},
 			},
 		},
 		{
 			name: "v2.0/Service/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Service",
 				"name":       "test",
-				"tags": []any{
+				"tags": []interface{}{
 					"gitTag",
-					map[string]any{
+					map[string]interface{}{
 						"custom": "latest",
 					},
-					map[string]any{
-						"gitSha": map[string]any{"length": 7},
+					map[string]interface{}{
+						"gitSha": map[string]interface{}{"length": 7},
 					},
 				},
-				"artifacts": []any{
+				"artifacts": []interface{}{
 					"docker",
-					map[string]any{
-						"docker": map[string]any{},
+					map[string]interface{}{
+						"docker": map[string]interface{}{},
 					},
-					map[string]any{
-						"docker": map[string]any{"image": "example.com/test/image"},
+					map[string]interface{}{
+						"docker": map[string]interface{}{"image": "example.com/test/image"},
 					},
-					map[string]any{
-						"docker": map[string]any{"image": "example.com/test/image"},
+					map[string]interface{}{
+						"docker": map[string]interface{}{"image": "example.com/test/image"},
 						"push":   false,
 					},
-					map[string]any{
-						"docker": map[string]any{"image": "example.com/test/image"},
+					map[string]interface{}{
+						"docker": map[string]interface{}{"image": "example.com/test/image"},
 						"push":   "script",
 					},
-					map[string]any{
-						"docker": map[string]any{"image": "example.com/test/image"},
-						"push":   map[string]any{"script": "script.sh"},
+					map[string]interface{}{
+						"docker": map[string]interface{}{"image": "example.com/test/image"},
+						"push":   map[string]interface{}{"script": "script.sh"},
 					},
 				},
-				"releases": []any{
+				"releases": []interface{}{
 					"npm",
-					map[string]any{
+					map[string]interface{}{
 						"helm": "bitnami/redis",
 					},
-					map[string]any{
-						"helm": map[string]any{"chartPath": "bitnami/redis"},
+					map[string]interface{}{
+						"helm": map[string]interface{}{"chartPath": "bitnami/redis"},
 					},
 				},
-				"tasks": map[string]any{
-					"prepare": []any{
-						map[string]any{"npm": "install"},
+				"tasks": map[string]interface{}{
+					"prepare": []interface{}{
+						map[string]interface{}{"npm": "install"},
 					},
-					"test": []any{
-						map[string]any{"npm": "test"},
-						map[string]any{"go": "test ./..."},
+					"test": []interface{}{
+						map[string]interface{}{"npm": "test"},
+						map[string]interface{}{"go": "test ./..."},
 					},
-					"lint": []any{
+					"lint": []interface{}{
 						"prettier",
 					},
-					"task-name": []any{
-						map[string]any{
-							"script": map[string]any{
+					"task-name": []interface{}{
+						map[string]interface{}{
+							"script": map[string]interface{}{
 								"sh": "./task.sh",
 							},
 						},
@@ -377,82 +377,82 @@ func TestToInternal(t *testing.T) {
 				},
 				"extra": true,
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Service",
 				"name": "test",
-				"build": map[string]any{
-					"tags": []any{
-						map[string]any{
+				"build": map[string]interface{}{
+					"tags": []interface{}{
+						map[string]interface{}{
 							"index": int64(0),
 							"spec":  nil,
 							"type":  "gitTag",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(1),
 							"spec":  "latest",
 							"type":  "custom",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(2),
-							"spec":  map[string]any{"length": 7},
+							"spec":  map[string]interface{}{"length": 7},
 							"type":  "gitSha",
 						},
 					},
-					"artifacts": map[string]any{
-						"toBuild": []any{
-							map[string]any{
+					"artifacts": map[string]interface{}{
+						"toBuild": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
 								"spec":  nil,
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(1),
-								"spec":  map[string]any{},
+								"spec":  map[string]interface{}{},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(2),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(3),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(4),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(5),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
 						},
-						"toPush": []any{
-							map[string]any{
+						"toPush": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
 								"spec":  nil,
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(1),
-								"spec":  map[string]any{},
+								"spec":  map[string]interface{}{},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(2),
-								"spec":  map[string]any{"image": "example.com/test/image"},
+								"spec":  map[string]interface{}{"image": "example.com/test/image"},
 								"type":  "docker",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(4),
 								"spec":  nil,
 								"type":  "script",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(5),
 								"spec":  "script.sh",
 								"type":  "script",
@@ -460,57 +460,57 @@ func TestToInternal(t *testing.T) {
 						},
 					},
 				},
-				"deploy": map[string]any{
-					"releases": []any{
-						map[string]any{
+				"deploy": map[string]interface{}{
+					"releases": []interface{}{
+						map[string]interface{}{
 							"index": int64(0),
 							"spec":  nil,
 							"type":  "npm",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(1),
 							"spec":  "bitnami/redis",
 							"type":  "helm",
 						},
-						map[string]any{
+						map[string]interface{}{
 							"index": int64(2),
-							"spec":  map[string]any{"chartPath": "bitnami/redis"},
+							"spec":  map[string]interface{}{"chartPath": "bitnami/redis"},
 							"type":  "helm",
 						},
 					},
 				},
-				"run": map[string]any{
-					"tasks": map[string]any{
-						"prepare": []any{
-							map[string]any{
+				"run": map[string]interface{}{
+					"tasks": map[string]interface{}{
+						"prepare": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
 								"spec":  "install",
 								"type":  "npm",
 							},
 						},
-						"test": []any{
-							map[string]any{
+						"test": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
 								"spec":  "test",
 								"type":  "npm",
 							},
-							map[string]any{
+							map[string]interface{}{
 								"index": int64(1),
 								"spec":  "test ./...",
 								"type":  "go",
 							},
 						},
-						"lint": []any{
-							map[string]any{
+						"lint": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
 								"spec":  nil,
 								"type":  "prettier",
 							},
 						},
-						"task-name": []any{
-							map[string]any{
+						"task-name": []interface{}{
+							map[string]interface{}{
 								"index": int64(0),
-								"spec": map[string]any{
+								"spec": map[string]interface{}{
 									"sh": "./task.sh",
 								},
 								"type": "script",
@@ -522,105 +522,105 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Service/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Service",
 				"name":       "test",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Service",
 				"name": "test",
-				"build": map[string]any{
-					"artifacts": map[string]any{
-						"toBuild": []any{},
-						"toPush":  []any{},
+				"build": map[string]interface{}{
+					"artifacts": map[string]interface{}{
+						"toBuild": []interface{}{},
+						"toPush":  []interface{}{},
 					},
-					"tags": []any{},
+					"tags": []interface{}{},
 				},
-				"deploy": map[string]any{
-					"releases": []any{},
+				"deploy": map[string]interface{}{
+					"releases": []interface{}{},
 				},
-				"run": map[string]any{
-					"tasks": map[string]any{},
+				"run": map[string]interface{}{
+					"tasks": map[string]interface{}{},
 				},
 			},
 		},
 		{
 			name: "v2.0/Project/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Project",
 				"name":       "test",
-				"files": []any{
+				"files": []interface{}{
 					"glob",
-					map[string]any{"git": map[string]any{
+					map[string]interface{}{"git": map[string]interface{}{
 						"url":   "http://github.com/g2a-com/klio-lifecycle",
 						"rev":   "master",
 						"files": "assets/executors/*/*",
 					}},
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"name": "value",
 				},
 				"extra": true,
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Project",
 				"name": "test",
-				"files": []any{
-					map[string]any{
+				"files": []interface{}{
+					map[string]interface{}{
 						"glob": "glob",
 					},
-					map[string]any{
-						"git": map[string]any{
+					map[string]interface{}{
+						"git": map[string]interface{}{
 							"url": "http://github.com/g2a-com/klio-lifecycle",
 							"rev": "master",
 						},
 						"glob": "assets/executors/*/*",
 					},
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"name": "value",
 				},
 			},
 		},
 		{
 			name: "v2.0/Project/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Project",
 				"name":       "test",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":      "Project",
 				"name":      "test",
-				"files":     []any{},
-				"variables": map[string]any{},
+				"files":     []interface{}{},
+				"variables": map[string]interface{}{},
 			},
 		},
 		{
 			name: "v2.0/Environment/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Environment",
 				"name":       "test",
-				"deployServices": []any{
+				"deployServices": []interface{}{
 					"serviceA",
 					"serviceB",
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"varA": "value",
 					"varB": "value",
 				},
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind": "Environment",
 				"name": "test",
-				"deployServices": []any{
+				"deployServices": []interface{}{
 					"serviceA",
 					"serviceB",
 				},
-				"variables": map[string]any{
+				"variables": map[string]interface{}{
 					"varA": "value",
 					"varB": "value",
 				},
@@ -628,28 +628,28 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Environment/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Environment",
 				"name":       "test",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":           "Environment",
 				"name":           "test",
-				"deployServices": []any{},
-				"variables":      map[string]any{},
+				"deployServices": []interface{}{},
+				"variables":      map[string]interface{}{},
 			},
 		},
 		{
 			name: "v2.0/Builder/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Builder",
 				"name":       "test",
-				"schema":     map[string]any{},
+				"schema":     map[string]interface{}{},
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Builder",
 				"name":   "test",
 				"schema": "{}",
@@ -658,13 +658,13 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Builder/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Builder",
 				"name":       "test",
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Builder",
 				"name":   "test",
 				"schema": "{}",
@@ -673,14 +673,14 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Deployer/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Deployer",
 				"name":       "test",
-				"schema":     map[string]any{},
+				"schema":     map[string]interface{}{},
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Deployer",
 				"name":   "test",
 				"schema": "{}",
@@ -689,13 +689,13 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Deployer/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Deployer",
 				"name":       "test",
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Deployer",
 				"name":   "test",
 				"schema": "{}",
@@ -704,14 +704,14 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Pusher/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Pusher",
 				"name":       "test",
-				"schema":     map[string]any{},
+				"schema":     map[string]interface{}{},
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Pusher",
 				"name":   "test",
 				"schema": "{}",
@@ -720,13 +720,13 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Pusher/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Pusher",
 				"name":       "test",
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Pusher",
 				"name":   "test",
 				"schema": "{}",
@@ -735,14 +735,14 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Tagger/full",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Tagger",
 				"name":       "test",
-				"schema":     map[string]any{},
+				"schema":     map[string]interface{}{},
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Tagger",
 				"name":   "test",
 				"schema": "{}",
@@ -751,13 +751,13 @@ func TestToInternal(t *testing.T) {
 		},
 		{
 			name: "v2.0/Tagger/min",
-			input: map[string]any{
+			input: map[string]interface{}{
 				"apiVersion": "g2a-cli/v2.0",
 				"kind":       "Tagger",
 				"name":       "test",
 				"script":     "",
 			},
-			expected: map[string]any{
+			expected: map[string]interface{}{
 				"kind":   "Tagger",
 				"name":   "test",
 				"schema": "{}",
@@ -783,8 +783,8 @@ func TestToInternal(t *testing.T) {
 			}
 
 			if diff := deep.Equal(c.expected, actual); diff != nil {
-				e, _ := yaml.Marshal(map[string]any{"EXPECTED": c.expected})
-				a, _ := yaml.Marshal(map[string]any{"ACTUAL": actual})
+				e, _ := yaml.Marshal(map[string]interface{}{"EXPECTED": c.expected})
+				a, _ := yaml.Marshal(map[string]interface{}{"ACTUAL": actual})
 				t.Errorf("\n%s\n%s\n", e, a)
 				for _, d := range diff {
 					t.Error(d)

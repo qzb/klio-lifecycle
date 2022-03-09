@@ -14,12 +14,12 @@ func Test_input_is_passed_down_to_script(t *testing.T) {
 	script := New(executor)
 	script.Logger = log
 
-	_, err := script.Run(map[string]any{
+	_, err := script.Run(map[string]interface{}{
 		"foo": "bar",
 	})
 
 	assert.NoError(t, err)
-	assert.Contains(t, log.Messages, fakelogger.Message{Level: "info", Method: "Print", Args: []any{`{foo: "bar"}`}})
+	assert.Contains(t, log.Messages, fakelogger.Message{Level: "info", Method: "Print", Args: []interface{}{`{foo: "bar"}`}})
 }
 
 func Test_returns_results_added_by_script(t *testing.T) {

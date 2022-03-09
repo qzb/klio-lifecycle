@@ -10,7 +10,7 @@ type Message struct {
 	Level  logger.Level
 	Tags   []string
 	Method string
-	Args   []any
+	Args   []interface{}
 }
 
 type FakeLogger struct {
@@ -27,7 +27,7 @@ func New() *FakeLogger {
 	return l
 }
 
-func (l *FakeLogger) Print(v ...any) logger.Logger {
+func (l *FakeLogger) Print(v ...interface{}) logger.Logger {
 	l.root.Messages = append(l.root.Messages, Message{
 		Level:  l.level,
 		Tags:   l.tags,
@@ -37,12 +37,12 @@ func (l *FakeLogger) Print(v ...any) logger.Logger {
 	return l
 }
 
-func (l *FakeLogger) Printf(format string, v ...any) logger.Logger {
+func (l *FakeLogger) Printf(format string, v ...interface{}) logger.Logger {
 	l.root.Messages = append(l.root.Messages, Message{
 		Level:  l.level,
 		Tags:   l.tags,
 		Method: "Printf",
-		Args:   append([]any{format}, v...),
+		Args:   append([]interface{}{format}, v...),
 	})
 	return l
 }
@@ -52,7 +52,7 @@ func (l *FakeLogger) Write(data []byte) (int, error) {
 		Level:  l.level,
 		Tags:   l.tags,
 		Method: "Write",
-		Args:   []any{data},
+		Args:   []interface{}{data},
 	})
 	return len(data), nil
 }
