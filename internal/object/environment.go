@@ -1,9 +1,9 @@
 package object
 
 type Environment struct {
-	Directory      string   `placeholders:"disable"`
-	Kind           Kind     `placeholders:"disable"`
-	Name           string   `placeholders:"disable"`
-	DeployServices []string `placeholders:"disable"`
+	Directory      string
+	Kind           Kind
+	Name           string
+	DeployServices []string
 	Variables      map[string]string
 }

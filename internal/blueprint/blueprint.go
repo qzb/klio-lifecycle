@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/g2a-com/cicd/internal/blueprint/internal/placeholders"
 	"github.com/g2a-com/cicd/internal/blueprint/internal/remotes"
 	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/cicd/internal/placeholders"
 	log "github.com/g2a-com/klio-logger-go"
 	"github.com/hashicorp/go-multierror"
 	"gopkg.in/yaml.v2"
@@ -260,15 +260,24 @@ func (b *Blueprint) checkConsistency() error {
 	return err
 }
 
-func (b *Blueprint) fillPlaceholders() error {
+func (b *Blueprint) fillPlaceholders() (err error) {
 	project := b.GetProject()
 
 	for _, d := range b.Documents {
+		service, ok := d.Object.(object.Service)
+		if !ok {
+			continue
+		}
+
 		values := map[string]interface{}{
 			"Project": map[string]interface{}{
 				"Dir":  project.Directory,
 				"Name": project.Name,
 				"Vars": project.Variables,
+			},
+			"Service": map[string]interface{}{
+				"Dir":  service.Directory,
+				"Name": service.Name,
 			},
 			"Params": b.opts.Params,
 		}
@@ -282,20 +291,15 @@ func (b *Blueprint) fillPlaceholders() error {
 			}
 		}
 
-		if d.Kind == object.ServiceKind {
-			service, _ := b.GetService(d.Name)
-			values["Service"] = map[string]interface{}{
-				"Dir":  service.Directory,
-				"Name": service.Name,
-			}
-		}
-
 		if b.opts.Tag != "" {
 			values["Tag"] = b.opts.Tag
 		}
 
 		if d.APIVersion == "g2a-cli/v1beta4" {
-			values["Dirs"] = map[string]interface{}{"Project": project.Directory}
+			values["Dirs"] = map[string]interface{}{
+				"Project": project.Directory,
+				"Service": service.Directory,
+			}
 
 			if b.opts.Environment != "" {
 				environment, _ := b.GetEnvironment(b.opts.Environment)
@@ -303,21 +307,29 @@ func (b *Blueprint) fillPlaceholders() error {
 				values["Dirs"].(map[string]interface{})["Environment"] = environment.Directory
 			}
 
-			if d.Kind == object.ServiceKind {
-				service, _ := b.GetService(d.Name)
-				values["Dirs"].(map[string]interface{})["Service"] = service.Directory
-			}
-
 			if b.opts.Tag != "" {
 				values["Opts"] = map[string]interface{}{"Tag": b.opts.Tag}
 			}
 		}
 
-		obj, err := placeholders.ProcessStruct(d.Object, values)
-		if err != nil {
-			return err
+		for i := range service.Build.Artifacts.ToBuild {
+			service.Build.Artifacts.ToBuild[i].Spec, err = placeholders.Replace(service.Build.Artifacts.ToBuild[i].Spec, values)
+			if err != nil {
+				return err
+			}
 		}
-		d.Object = obj
+		for i := range service.Build.Artifacts.ToPush {
+			service.Build.Artifacts.ToPush[i].Spec, err = placeholders.Replace(service.Build.Artifacts.ToPush[i].Spec, values)
+			if err != nil {
+				return err
+			}
+		}
+		for i := range service.Deploy.Releases {
+			service.Deploy.Releases[i].Spec, err = placeholders.Replace(service.Deploy.Releases[i].Spec, values)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
