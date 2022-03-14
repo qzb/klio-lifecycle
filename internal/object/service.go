@@ -2,14 +2,14 @@ package object
 
 type ServiceEntry struct {
 	Index int
-	Type  string `placeholders:"disable"`
+	Type  string
 	Spec  interface{}
 }
 
 type Service struct {
-	Directory string `placeholders:"disable"`
-	Kind      Kind   `placeholders:"disable"`
-	Name      string `placeholders:"disable"`
+	Directory string
+	Kind      Kind
+	Name      string
 	Build     struct {
 		Tags      []ServiceEntry
 		Artifacts struct {

@@ -1,9 +1,9 @@
 package object
 
 type Project struct {
-	Directory string `placeholders:"disable"`
-	Kind      Kind   `placeholders:"disable"`
-	Name      string `placeholders:"disable"`
+	Directory string
+	Kind      Kind
+	Name      string
 	Files     []struct {
 		Glob string
 		Git  *struct {
