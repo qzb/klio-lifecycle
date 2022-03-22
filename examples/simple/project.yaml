@@ -2,6 +2,6 @@ apiVersion: g2a-cli/v2.0
 kind: Project
 name: example-project
 files:
-  - '*.yaml'
+  - "*.yaml"
 variables:
-  variable: 'variable defined in {{ .Project.Name }} project'
+  variable: "variable defined in {{ .Project.Name }} project"

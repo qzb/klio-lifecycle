@@ -7,5 +7,8 @@ import (
 
 func SaveResult(file string, result interface{}) {
 	content, _ := json.MarshalIndent(result, "", "  ")
-	os.WriteFile(file, content, 0644)
+	err := os.WriteFile(file, append(content, '\n'), 0644)
+	if err != nil {
+		panic(err)
+	}
 }

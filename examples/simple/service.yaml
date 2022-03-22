@@ -5,17 +5,17 @@ name: generic-api
 tags:
   # Usually it's better to use tag policies like "gitSha" or "gitTag", but we
   # need to test these examples, so tags should not change.
-  - custom: 'latest'
+  - custom: "latest"
 artifacts:
   - docker:
-      image: 'example.com/test/image'
+      image: "example.com/test/image"
 releases:
   - helm:
-      name: 'generic-api-{{ .Environment.Name }}'
-      chartPath: 'example/chart'
-      chartVersion: 'v1.2.3'
+      name: "generic-api-{{ .Environment.Name }}"
+      chartPath: "example/chart"
+      chartVersion: "v1.2.3"
       values:
-        - image: 'example.com/test/image:{{ .Tag }}'
+        image: "example.com/test/image:{{ .Tag }}"
       chartRepository:
         name: example
-        url: 'https://example.com'
+        url: "https://example.com"

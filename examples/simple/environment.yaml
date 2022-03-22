@@ -4,4 +4,4 @@ name: local
 deployServices:
   - generic-api
 variables:
-  variable: 'variable defined in {{ .Environment.Name }} environment'
+  variable: "variable defined in {{ .Environment.Name }} environment"

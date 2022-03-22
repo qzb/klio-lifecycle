@@ -1,0 +1,7 @@
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/project.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/environment.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/executors.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/service.yaml_klio_reset\
+_klio_log_level "spam"\_klio_tags ["generic-api"]\Running tagger "custom"_klio_reset\
+_klio_log_level "spam"\_klio_tags ["generic-api"]\Running builder "docker"_klio_reset\
+_klio_log_level "info"\_klio_tags []\Successfully built 1 service_klio_reset\

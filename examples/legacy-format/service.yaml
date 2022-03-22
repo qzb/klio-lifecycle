@@ -21,7 +21,7 @@ build:
     # Usually it's better to use tag policies like "gitSha" or "gitTag", but we
     # need to test these examples, so tags should not change.
     custom:
-      format: 'latest'
+      format: "latest"
 deploy:
   releases:
     - script:

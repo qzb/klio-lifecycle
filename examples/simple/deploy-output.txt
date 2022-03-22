@@ -1,0 +1,8 @@
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/project.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/environment.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/executors.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/simple/service.yaml_klio_reset\
+_klio_log_level "info"\_klio_tags []\Deploying to environment "local"..._klio_reset\
+_klio_log_level "info"\_klio_tags ["generic-api"]\Deploying service "generic-api"..._klio_reset\
+_klio_log_level "spam"\_klio_tags ["generic-api"]\Running deployer "helm"_klio_reset\
+_klio_log_level "info"\_klio_tags []\Successfully deployed 1 service to environment "local"_klio_reset\
