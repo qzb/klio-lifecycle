@@ -63,6 +63,20 @@ func Test_replacing_using_nested_values_is_valid(t *testing.T) {
 	assert.Equal(t, "lie", output)
 }
 
+func Test_replacing_using_string_to_string_map_is_valid(t *testing.T) {
+	values := map[string]interface{}{
+		"the": map[string]string{
+			"cake": "is.a.lie",
+		},
+	}
+	input := "{{ .the.cake }}"
+
+	output, err := Replace(input, values)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "is.a.lie", output)
+}
+
 func Test_replacing_using_flattened_values_is_valid(t *testing.T) {
 	values := map[string]interface{}{
 		"the.cake.is": "a.lie",

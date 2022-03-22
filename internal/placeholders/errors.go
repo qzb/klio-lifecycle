@@ -35,7 +35,7 @@ type MissingPlaceholderError struct {
 }
 
 func (e *MissingPlaceholderError) Error() string {
-	return fmt.Sprintf("value for {{ .%s }} placeholder is not specified, available placeholders:\n  %s", e.MissingName, strings.Join(e.ValidNames, ", "))
+	return fmt.Sprintf("value for {{ %s }} placeholder is not specified, available placeholders:\n  %s", e.MissingName, strings.Join(e.ValidNames, ", "))
 }
 
 // InvalidPlaceholderNameError records value name which contains unallowed

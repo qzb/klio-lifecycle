@@ -40,6 +40,10 @@ func newValuesCollection(values map[string]interface{}) (collection *valuesColle
 				collection.values[id] = val
 				collection.names[id] = name
 
+			case map[string]string:
+				prefixes = append(prefixes, name)
+				maps = append(maps, toMapStringInterface(val))
+
 			case map[string]interface{}:
 				prefixes = append(prefixes, name)
 				maps = append(maps, val)
@@ -125,4 +129,13 @@ func (v *valuesCollection) expandPlaceholders() (err error) {
 	}
 
 	return
+}
+
+// toMapStringInterface converts map of strings to map of interfaces
+func toMapStringInterface(v map[string]string) map[string]interface{} {
+	result := make(map[string]interface{}, len(v))
+	for k, v := range v {
+		result[k] = v
+	}
+	return result
 }
