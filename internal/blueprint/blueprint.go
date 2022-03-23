@@ -26,13 +26,16 @@ const (
 	RunMode    Mode = "run"
 )
 
+type Preprocessor func([]byte) ([]byte, error)
+
 type Opts struct {
-	ProjectFile string
-	Mode        Mode
-	Services    []string
-	Params      map[string]string
-	Environment string
-	Tag         string
+	ProjectFile   string
+	Mode          Mode
+	Services      []string
+	Params        map[string]string
+	Environment   string
+	Tag           string
+	Preprocessors []Preprocessor
 }
 
 type Blueprint struct {
@@ -61,7 +64,7 @@ func Load(opts Opts) (*Blueprint, error) {
 	}
 	b.opts.ProjectFile = projectFile
 
-	docs, err := readFile(b.opts.ProjectFile, b.opts.Mode)
+	docs, err := b.readFile(b.opts.ProjectFile, b.opts.Mode)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +109,7 @@ func Load(opts Opts) (*Blueprint, error) {
 				processedFiles[p] = true
 			}
 
-			docs, err := readFile(p, b.opts.Mode)
+			docs, err := b.readFile(p, b.opts.Mode)
 			if err != nil {
 				return nil, fmt.Errorf(`file "%s" contains invalid document: %s`, p, err)
 			}
@@ -295,22 +298,23 @@ func (b *Blueprint) fillPlaceholders() (err error) {
 			values["Tag"] = b.opts.Tag
 		}
 
-		if d.APIVersion == "g2a-cli/v1beta4" {
-			values["Dirs"] = map[string]interface{}{
-				"Project": project.Directory,
-				"Service": service.Directory,
-			}
-
-			if b.opts.Environment != "" {
-				environment, _ := b.GetEnvironment(b.opts.Environment)
-				values["Env"] = environment.Variables
-				values["Dirs"].(map[string]interface{})["Environment"] = environment.Directory
-			}
-
-			if b.opts.Tag != "" {
-				values["Opts"] = map[string]interface{}{"Tag": b.opts.Tag}
-			}
-		}
+		// TODO: this isn't working anymore, since preprocessors override
+		// APIVersion. Move it to schema.Migrate.
+		//
+		// if d.APIVersion == "g2a-cli/v1beta4" {
+		// 	values["Dirs"] = map[string]interface{}{
+		// 		"Project": project.Directory,
+		// 		"Service": service.Directory,
+		// 	}
+		// 	if b.opts.Environment != "" {
+		// 		environment, _ := b.GetEnvironment(b.opts.Environment)
+		// 		values["Env"] = environment.Variables
+		// 		values["Dirs"].(map[string]interface{})["Environment"] = environment.Directory
+		// 	}
+		// 	if b.opts.Tag != "" {
+		// 		values["Opts"] = map[string]interface{}{"Tag": b.opts.Tag}
+		// 	}
+		// }
 
 		for i := range service.Build.Artifacts.ToBuild {
 			service.Build.Artifacts.ToBuild[i].Spec, err = placeholders.Replace(service.Build.Artifacts.ToBuild[i].Spec, values)
@@ -407,11 +411,18 @@ func (b *Blueprint) getEnvironmentNames() (names []string) {
 	return names
 }
 
-func readFile(filePath string, mode Mode) ([]*document, error) {
+func (b *Blueprint) readFile(filePath string, mode Mode) ([]*document, error) {
 	log.Debugf("Loading file: %s", filePath)
 	buf, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, preprocessor := range b.opts.Preprocessors {
+		buf, err = preprocessor(buf)
+		if err != nil {
+			return nil, fmt.Errorf(`file "%s" contains invalid document: %s`, filePath, err)
+		}
 	}
 
 	var documents []*document

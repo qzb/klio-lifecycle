@@ -3,16 +3,15 @@ package scheme
 import (
 	"encoding/json"
 	"fmt"
-	"path"
 
 	"github.com/icza/dyno"
 )
 
-func toInternal(obj interface{}) interface{} {
-	if getString(obj, "apiVersion") != "g2a-cli/v2.0" {
-		obj = toV2(obj)
-	}
+func ToInternal(content interface{}) (interface{}, error) {
+	return toInternal(dyno.ConvertMapI2MapS(content)), nil
+}
 
+func toInternal(obj interface{}) interface{} {
 	switch kind := getString(obj, "kind"); kind {
 	case "Project":
 		return toInternalProject(obj)
@@ -134,124 +133,6 @@ func toInternalEntry(i int, obj interface{}) interface{} {
 	return nil
 }
 
-func toV2(obj interface{}) interface{} {
-	if getString(obj, "apiVersion") != "g2a-cli/v1beta4" {
-		panic(fmt.Errorf("unsupported version: %s", get(obj, "apiVersion")))
-	}
-
-	switch kind := getString(obj, "kind"); kind {
-	case "Project":
-		return toV2Project(obj)
-	case "Service":
-		return toV2Service(obj)
-	case "Environment":
-		return toV2Environment(obj)
-	default:
-		panic(fmt.Errorf("unsupported kind: %s", kind))
-	}
-}
-
-func toV2Project(obj interface{}) interface{} {
-	files := []interface{}{
-		map[string]interface{}{
-			"git": map[string]interface{}{
-				"url":   "git@github.com:g2a-com/klio-lifecycle.git",
-				"rev":   "main",
-				"files": "assets/executors/*/*.yaml",
-			},
-		},
-	}
-
-	if has(obj, "services") {
-		for _, s := range getSlice(obj, "services") {
-			files = append(files, path.Join(s.(string), "service.yaml"))
-		}
-	} else {
-		files = append(files, "services/*/service.yaml")
-	}
-
-	if has(obj, "environments") {
-		for _, e := range getSlice(obj, "environments") {
-			files = append(files, path.Join(e.(string), "environment.yaml"))
-		}
-	} else {
-		files = append(files, "environments/*/environment.yaml")
-	}
-
-	return map[string]interface{}{
-		"apiVersion": "g2a-cli/v2.0",
-		"kind":       "Project",
-		"name":       or(get(obj, "name"), "project"),
-		"files":      files,
-		"tasks":      map[string]interface{}{},
-		"variables":  map[string]interface{}{},
-	}
-}
-
-func toV2Service(obj interface{}) interface{} {
-	artifacts := getSlice(obj, "build", "artifacts")
-
-	if hooks := get(obj, "hooks", "pre-build"); hooks != nil {
-		artifacts = prepend(artifacts, map[string]interface{}{
-			"script": hooksToScript(hooks),
-			"push":   false,
-		})
-	}
-	if hooks := get(obj, "hooks", "post-build"); hooks != nil {
-		artifacts = append(artifacts, map[string]interface{}{
-			"script": hooksToScript(hooks),
-			"push":   false,
-		})
-	}
-
-	releases := getSlice(obj, "deploy", "releases")
-
-	if hooks := get(obj, "hooks", "pre-deploy"); hooks != nil {
-		releases = prepend(releases, map[string]interface{}{
-			"script": hooksToScript(hooks),
-		})
-	}
-	if hooks := get(obj, "hooks", "post-deploy"); hooks != nil {
-		releases = append(releases, map[string]interface{}{
-			"script": hooksToScript(hooks),
-		})
-	}
-
-	tags := []interface{}{}
-
-	for k, v := range getMap(obj, "build", "tagPolicy") {
-		tags = append(tags, map[string]interface{}{k: v})
-	}
-
-	return map[string]interface{}{
-		"apiVersion": "g2a-cli/v2.0",
-		"kind":       "Service",
-		"name":       getString(obj, "name"),
-		"tags":       tags,
-		"artifacts":  artifacts,
-		"releases":   releases,
-		"tasks":      map[string]interface{}{},
-	}
-}
-
-func toV2Environment(obj interface{}) interface{} {
-	return map[string]interface{}{
-		"apiVersion":     "g2a-cli/v2.0",
-		"kind":           "Environment",
-		"name":           getString(obj, "name"),
-		"deployServices": getSlice(obj, "deployServices"),
-		"variables":      getMap(obj, "variables"),
-	}
-}
-
-func hooksToScript(hooks interface{}) interface{} {
-	sh := "set -e"
-	for _, hook := range getSlice(hooks) {
-		sh += fmt.Sprintf("\n%s", hook)
-	}
-	return map[string]interface{}{"sh": sh}
-}
-
 func getString(v interface{}, path ...interface{}) string {
 	str, err := dyno.GetString(v, path...)
 	if err != nil {
@@ -308,8 +189,4 @@ func mapSlice(v []interface{}, fn func(int, interface{}) interface{}) []interfac
 		res[i] = fn(i, v[i])
 	}
 	return res
-}
-
-func prepend(slice []interface{}, elems ...interface{}) []interface{} {
-	return append(elems, slice...)
 }

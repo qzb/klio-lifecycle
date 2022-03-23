@@ -7,6 +7,7 @@ import (
 	"github.com/g2a-com/cicd/internal/blueprint"
 	"github.com/g2a-com/cicd/internal/flags"
 	"github.com/g2a-com/cicd/internal/object"
+	"github.com/g2a-com/cicd/internal/schema"
 	"github.com/g2a-com/cicd/internal/script"
 	"github.com/g2a-com/cicd/internal/utils"
 	log "github.com/g2a-com/klio-logger-go/v2"
@@ -49,6 +50,10 @@ func main() {
 		ProjectFile: opts.ProjectFile,
 		Params:      opts.Params,
 		Services:    opts.Services,
+		Preprocessors: []blueprint.Preprocessor{
+			schema.Validate,
+			schema.Migrate,
+		},
 	})
 	if err != nil {
 		panic(err)

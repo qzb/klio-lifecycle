@@ -40,11 +40,6 @@ func newDocument(filePath string, index int, mode Mode, content interface{}) (*d
 		return nil, err
 	}
 
-	err = scheme.Validate(apiVersion, kind, content)
-	if err != nil {
-		return nil, err
-	}
-
 	normalized, err := scheme.ToInternal(content)
 	if err != nil {
 		return nil, err
