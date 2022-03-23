@@ -14,7 +14,7 @@ func Test_replacing_single_placeholder_in_a_string(t *testing.T) {
 	}
 	input := "foo {{ .placeholder }} bar"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "foo egg spam bar", output)
@@ -27,7 +27,7 @@ func Test_replacing_multiple_placeholders_in_a_single_string_is_valid(t *testing
 	}
 	input := "foo {{ .placeholder1 }} {{ .placeholder2 }} {{ .placeholder1 }} bar"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "foo egg spam potato egg spam bar", output)
@@ -39,7 +39,7 @@ func Test_replacing_a_string_without_any_placeholders_is_valid(t *testing.T) {
 	}
 	input := "foo bar"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "foo bar", output)
@@ -57,7 +57,7 @@ func Test_replacing_using_nested_values_is_valid(t *testing.T) {
 	}
 	input := "{{ .the.cake.is.a }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "lie", output)
@@ -71,7 +71,7 @@ func Test_replacing_using_string_to_string_map_is_valid(t *testing.T) {
 	}
 	input := "{{ .the.cake }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "is.a.lie", output)
@@ -83,7 +83,7 @@ func Test_replacing_using_flattened_values_is_valid(t *testing.T) {
 	}
 	input := "{{ .the.cake.is }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "a.lie", output)
@@ -97,7 +97,7 @@ func Test_replacing_using_a_mix_of_flattened_and_nested_values_is_valid(t *testi
 	}
 	input := "{{ .the.cake.is.a }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "lie", output)
@@ -109,7 +109,7 @@ func Test_replacement_values_are_case_insensitive(t *testing.T) {
 	}
 	input := "{{ .tHeCAKEiSA }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "lie", output)
@@ -121,7 +121,7 @@ func Test_whitespace_around_name_in_a_placeholder_marker_is_ignored(t *testing.T
 	}
 	input := "{{.foo}} {{ .foo }} {{  .foo     }} {{\t.foo \t }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "bar bar bar bar", output)
@@ -135,7 +135,7 @@ func Test_placeholders_in_replacement_values_are_replaced(t *testing.T) {
 	}
 	input := "{{ .placeholder3 }}"
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "1 2 3", output)
@@ -147,7 +147,7 @@ func Test_when_there_is_no_value_for_placeholder_replacing_ends_with_error(t *te
 	}
 	input := "{{ .Bar }}"
 
-	_, err := Replace(input, values)
+	_, err := ReplaceWithValues(input, values)
 
 	assert.Equal(t, err, &MissingPlaceholderError{MissingName: ".Bar", ValidNames: []string{".Foo"}})
 }
@@ -161,7 +161,7 @@ func Test_duplicating_placeholder_values_ends_with_error(t *testing.T) {
 	}
 	input := ""
 
-	_, err := Replace(input, values)
+	_, err := ReplaceWithValues(input, values)
 
 	assert.Equal(t, err, &DuplicatedPlaceholderError{Name1: ".foo.bar", Name2: ".Foo.Bar"})
 }
@@ -184,7 +184,7 @@ func Test_using_placeholder_with_invalid_name_ends_with_error(t *testing.T) {
 			values := map[string]interface{}{name: "value"}
 			input := ""
 
-			_, err := Replace(input, values)
+			_, err := ReplaceWithValues(input, values)
 
 			assert.Equal(t, &InvalidPlaceholderNameError{Name: "." + name}, err)
 		})
@@ -198,7 +198,7 @@ func Test_replacing_cyclic_placeholders_ends_with_error(t *testing.T) {
 	}
 	input := "{{ .placeholder1 }}"
 
-	_, err := Replace(input, values)
+	_, err := ReplaceWithValues(input, values)
 
 	assert.Error(t, err)
 	assert.Equal(t, &CyclicPlaceholderError{Cycle: []string{".placeholder2", ".placeholder1", ".placeholder2"}}, err)
@@ -211,7 +211,7 @@ func Test_cyclic_placeholder_errors_preserve_original_letter_casing(t *testing.T
 	}
 	input := "{{ .placeholder1 }}"
 
-	_, err := Replace(input, values)
+	_, err := ReplaceWithValues(input, values)
 
 	assert.Error(t, err)
 	assert.Equal(t, &CyclicPlaceholderError{Cycle: []string{".placehOlder2", ".Placeholder1", ".placehOlder2"}}, err)
@@ -225,7 +225,7 @@ func Test_replacing_placeholders_in_map_values_is_supported(t *testing.T) {
 		"": "{{ .foo }}",
 	}
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, map[interface{}]interface{}{"": "bar"}, output)
@@ -239,7 +239,7 @@ func Test_replacing_placeholders_in_map_keys_is_supported(t *testing.T) {
 		"{{ .foo }}": "",
 	}
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, map[interface{}]interface{}{"bar": ""}, output)
@@ -251,7 +251,7 @@ func Test_replacing_placeholders_in_slices_is_supported(t *testing.T) {
 	}
 	input := []interface{}{"{{ .foo }}"}
 
-	output, err := Replace(input, values)
+	output, err := ReplaceWithValues(input, values)
 
 	assert.NoError(t, err)
 	assert.Equal(t, []interface{}{"bar"}, output)
@@ -263,7 +263,7 @@ func Test_replacing_placeholders_in_ints_floats_and_booleans_doesnt_do_anything(
 		t.Run(fmt.Sprintf("%T", input), func(t *testing.T) {
 			values := map[string]interface{}{"foo": "bar"}
 
-			output, err := Replace(input, values)
+			output, err := ReplaceWithValues(input, values)
 
 			assert.NoError(t, err)
 			assert.Equal(t, input, output)
@@ -281,9 +281,32 @@ func Test_replacing_placeholders_in_not_supported_types_returns_error(t *testing
 		t.Run(fmt.Sprintf("%T", input), func(t *testing.T) {
 			values := map[string]interface{}{"foo": "bar"}
 
-			_, err := Replace(input, values)
+			_, err := ReplaceWithValues(input, values)
 
-			assert.EqualError(t, err, fmt.Sprintf("replacing placeholders in %q is not supported", reflect.TypeOf(input).Kind()))
+			assert.EqualError(t, err, fmt.Sprintf("processing placeholders in %q is not supported", reflect.TypeOf(input).Kind()))
 		})
 	}
+}
+
+func Test_replacing_using_function_instead_of_values_map_is_valid(t *testing.T) {
+	input := "{{ .foo }} {{ .BAR }}"
+	replaceFn := func(name string) (string, error) {
+		return name, nil
+	}
+
+	output, err := Replace(input, replaceFn)
+
+	assert.NoError(t, err)
+	assert.Equal(t, ".foo .BAR", output)
+}
+
+func Test_when_replace_function_returns_error_replacing_ends_with_error(t *testing.T) {
+	input := "{{ .foo }} {{ .BAR }}"
+	replaceFn := func(name string) (string, error) {
+		return name, assert.AnError
+	}
+
+	_, err := Replace(input, replaceFn)
+
+	assert.Error(t, err)
 }

@@ -298,38 +298,20 @@ func (b *Blueprint) fillPlaceholders() (err error) {
 			values["Tag"] = b.opts.Tag
 		}
 
-		// TODO: this isn't working anymore, since preprocessors override
-		// APIVersion. Move it to schema.Migrate.
-		//
-		// if d.APIVersion == "g2a-cli/v1beta4" {
-		// 	values["Dirs"] = map[string]interface{}{
-		// 		"Project": project.Directory,
-		// 		"Service": service.Directory,
-		// 	}
-		// 	if b.opts.Environment != "" {
-		// 		environment, _ := b.GetEnvironment(b.opts.Environment)
-		// 		values["Env"] = environment.Variables
-		// 		values["Dirs"].(map[string]interface{})["Environment"] = environment.Directory
-		// 	}
-		// 	if b.opts.Tag != "" {
-		// 		values["Opts"] = map[string]interface{}{"Tag": b.opts.Tag}
-		// 	}
-		// }
-
 		for i := range service.Build.Artifacts.ToBuild {
-			service.Build.Artifacts.ToBuild[i].Spec, err = placeholders.Replace(service.Build.Artifacts.ToBuild[i].Spec, values)
+			service.Build.Artifacts.ToBuild[i].Spec, err = placeholders.ReplaceWithValues(service.Build.Artifacts.ToBuild[i].Spec, values)
 			if err != nil {
 				return err
 			}
 		}
 		for i := range service.Build.Artifacts.ToPush {
-			service.Build.Artifacts.ToPush[i].Spec, err = placeholders.Replace(service.Build.Artifacts.ToPush[i].Spec, values)
+			service.Build.Artifacts.ToPush[i].Spec, err = placeholders.ReplaceWithValues(service.Build.Artifacts.ToPush[i].Spec, values)
 			if err != nil {
 				return err
 			}
 		}
 		for i := range service.Deploy.Releases {
-			service.Deploy.Releases[i].Spec, err = placeholders.Replace(service.Deploy.Releases[i].Spec, values)
+			service.Deploy.Releases[i].Spec, err = placeholders.ReplaceWithValues(service.Deploy.Releases[i].Spec, values)
 			if err != nil {
 				return err
 			}

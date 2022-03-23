@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/g2a-com/cicd/internal/placeholders"
 	"gopkg.in/yaml.v3"
 )
 
@@ -148,6 +149,9 @@ func migrateDocumentFromV1Beta4ToV2(rootNode *yaml.Node) (err error) {
 			rootNode.Content = spliceNodes(rootNode.Content, 0, 0, kv...)
 		}
 	}
+
+	// Migrate placeholders names
+	migratePlaceholderNamesFromV1Beta4ToV2(rootNode)
 
 	return
 }
@@ -345,6 +349,41 @@ func hookToEntry(node *yaml.Node) *yaml.Node {
 			createStrScalarNode(builder.String()),
 		),
 	)
+}
+
+// migratePlaceholderNamesFromV1Beta4ToV2 replaces legacy placeholders with new ones.
+func migratePlaceholderNamesFromV1Beta4ToV2(node *yaml.Node) {
+	if node.Tag != "!!str" {
+		for _, n := range node.Content {
+			migratePlaceholderNamesFromV1Beta4ToV2(n)
+		}
+		return
+	}
+
+	value, err := placeholders.Replace(node.Value, func(name string) (result string, err error) {
+		id := strings.ToLower(name)
+		switch {
+		case id == ".dirs.project":
+			result = "{{ .Project.Dir }}"
+		case id == ".dirs.service":
+			result = "{{ .Service.Dir }}"
+		case id == ".dirs.environment":
+			result = "{{ .Environment.Dir }}"
+		case id == ".opts.tag":
+			result = "{{ .Tag }}"
+		case strings.HasPrefix(id, ".env."):
+			result = fmt.Sprintf("{{ .Environment.Vars.%s }}", name[5:])
+		default:
+			result = fmt.Sprintf("{{ %s }}", name)
+		}
+		return
+	})
+	// Replace should not return error, but handle it just to be safe.
+	if err != nil {
+		panic(err)
+	}
+
+	node.Value = value.(string)
 }
 
 // findMapKeyIndex returns index of a key node within map, value node is

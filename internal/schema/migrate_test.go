@@ -21,9 +21,9 @@ func Test_migrating_empty_service_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -38,9 +38,9 @@ func Test_migrating_service_containing_unsupported_properties_from_v1beta4_to_v2
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -63,9 +63,9 @@ func Test_migrating_service_tagPolicy_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -88,9 +88,9 @@ func Test_migrating_service_artifacts_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -111,9 +111,9 @@ func Test_migrating_releases_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -132,9 +132,9 @@ func Test_migrating_service_containing_only_hooks_from_v1beta4_to_v2_0(t *testin
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -161,9 +161,9 @@ func Test_migrating_build_hooks_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -188,9 +188,9 @@ func Test_migrating_deploy_hooks_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -224,9 +224,9 @@ func Test_migrating_empty_environment_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -247,9 +247,9 @@ func Test_migrating_environment_variables_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -264,9 +264,9 @@ func Test_migrating_environment_deployServices_from_v1beta4_to_v2_0(t *testing.T
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -287,9 +287,9 @@ func Test_migrating_empty_project_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -308,9 +308,9 @@ func Test_migrating_project_services_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -329,9 +329,9 @@ func Test_migrating_project_environments_from_v1beta4_to_v2_0(t *testing.T) {
 	}`)
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.YAMLEq(t, expected, string(result))
 }
 
@@ -348,13 +348,87 @@ func Test_migrating_multiple_documents(t *testing.T) {
 	}
 
 	migrator := NewMigrator("g2a-cli/v2.0")
-	result, migrationErr := migrator.Migrate([]byte(input))
+	result, err := migrator.Migrate([]byte(input))
 	documents := strings.Split(string(result), "\n---\n")
 
-	assert.NoError(t, migrationErr)
+	assert.NoError(t, err)
 	assert.Len(t, documents, len(expected))
 	for i, subDocument := range documents {
 		assert.YAMLEq(t, expected[i], subDocument)
+	}
+}
+
+func Test_migrating_service_from_v1beta4_to_v2_0_replaces_legacy_placeholders_with_new_ones(t *testing.T) {
+	cases := [][2]string{
+		{".Dirs.Project", ".Project.Dir"},
+		{".Dirs.Environment", ".Environment.Dir"},
+		{".Dirs.Service", ".Service.Dir"},
+		{".Env.FooBar", ".Environment.Vars.FooBar"},
+		{".Opts.Tag", ".Tag"},
+		{".Invalid", ".Invalid"},
+		{".Project.Dir", ".Project.Dir"},
+	}
+	for _, c := range cases {
+		t.Run(c[0], func(t *testing.T) {
+			input := testInput(fmt.Sprintf(`{
+			apiVersion: g2a-cli/v1beta4, kind: Service, name: test,
+			deploy: {
+				releases: [{
+					deployer: { foo: "{{ %s }}" }
+				}]
+			}
+		}`, c[0]))
+			expected := testInput(fmt.Sprintf(`{
+			apiVersion: g2a-cli/v2.0, kind: Service, name: test,
+			releases: [{
+				deployer: { foo: "{{ %s }}" }
+			}]
+		}`, c[1]))
+
+			migrator := NewMigrator("g2a-cli/v2.0")
+			result, err := migrator.Migrate([]byte(input))
+
+			assert.NoError(t, err)
+			assert.YAMLEq(t, expected, string(result))
+		})
+	}
+}
+
+func Test_migrating_environment_from_v1beta4_to_v2_0_replaces_legacy_placeholders_with_new_ones(t *testing.T) {
+	cases := [][2]string{
+		{".Dirs.Project", ".Project.Dir"},
+		{".Dirs.Environment", ".Environment.Dir"},
+		{".Dirs.Service", ".Service.Dir"},
+		{".Env.FooBar", ".Environment.Vars.FooBar"},
+		{".Opts.Tag", ".Tag"},
+		{".Invalid", ".Invalid"},
+		{".Project.Dir", ".Project.Dir"},
+	}
+	for _, c := range cases {
+		t.Run(c[0], func(t *testing.T) {
+			input := testInput(fmt.Sprintf(`{
+			apiVersion: g2a-cli/v1beta4,
+			kind: Environment,
+			name: test,
+			variables: {
+				name: "{{ %s }}"
+			}
+		}`, c[0]))
+			expected := testInput(fmt.Sprintf(`{
+			apiVersion: g2a-cli/v2.0,
+			kind: Environment,
+			name: test,
+			variables: {
+				name: "{{ %s }}"
+			}
+		}`, c[1]))
+
+			migrator := NewMigrator("g2a-cli/v2.0")
+			result, err := migrator.Migrate([]byte(input))
+
+			assert.NoError(t, err)
+			assert.YAMLEq(t, expected, string(result))
+		})
 	}
 }
 

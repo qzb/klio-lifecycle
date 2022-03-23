@@ -90,17 +90,11 @@ func (v *valuesCollection) Get(name string) (string, error) {
 
 // expandPlaceholders replaces placeholders within values and checks for cycles.
 func (v *valuesCollection) expandPlaceholders() (err error) {
-	var replace func(s string) (value string)
+	var replace ReplaceFunc
 
 	stack := []string{}
-	replace = func(s string) (value string) {
-		if err != nil {
-			return
-		}
-
-		name := placeholderRegexp.FindStringSubmatch(s)[1]
+	replace = func(name string) (value string, err error) {
 		value, err = v.Get(name)
-
 		if err != nil {
 			return
 		}
@@ -112,9 +106,9 @@ func (v *valuesCollection) expandPlaceholders() (err error) {
 			}
 		}
 
-		if placeholderRegexp.MatchString(value) {
+		if containsMarkers(value) {
 			stack = append(stack, name)
-			value = placeholderRegexp.ReplaceAllStringFunc(value, replace)
+			value, err = replaceMarkers(value, replace)
 			stack = stack[0 : len(stack)-1]
 		}
 
@@ -122,7 +116,7 @@ func (v *valuesCollection) expandPlaceholders() (err error) {
 	}
 
 	for _, id := range v.ids {
-		v.values[id] = placeholderRegexp.ReplaceAllStringFunc(v.values[id], replace)
+		v.values[id], err = replaceMarkers(v.values[id], replace)
 		if err != nil {
 			return
 		}
