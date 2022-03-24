@@ -7,10 +7,10 @@ tags:
   # need to test these examples, so tags should not change.
   - custom: "latest"
 artifacts:
-  - docker:
+  - custom-docker:
       image: "example.com/test/image"
 releases:
-  - helm:
+  - custom-helm:
       name: "generic-api-{{ .Environment.Name }}"
       chartPath: "example/chart"
       chartVersion: "v1.2.3"

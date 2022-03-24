@@ -27,33 +27,9 @@ func toInternal(obj interface{}) interface{} {
 }
 
 func toInternalProject(obj interface{}) interface{} {
-	files := []interface{}{}
-
-	for _, f := range getSlice(obj, "files") {
-		if isString(f) {
-			files = append(files, map[string]interface{}{"glob": f})
-		} else {
-			if has(f, "git") {
-				gitFiles := get(f, "git", "files")
-				if isString(gitFiles) {
-					gitFiles = []interface{}{gitFiles}
-				}
-				for _, glob := range getSlice(gitFiles) {
-					files = append(files, map[string]interface{}{
-						"glob": glob,
-						"git": map[string]interface{}{
-							"url": getString(f, "git", "url"),
-							"rev": getString(f, "git", "rev"),
-						},
-					})
-				}
-			}
-		}
-	}
-
 	return map[string]interface{}{
 		"kind":      "Project",
-		"files":     files,
+		"files":     getSlice(obj, "files"),
 		"name":      getString(obj, "name"),
 		"variables": getMap(obj, "variables"),
 	}

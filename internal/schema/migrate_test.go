@@ -280,7 +280,6 @@ func Test_migrating_empty_project_from_v1beta4_to_v2_0(t *testing.T) {
 		kind: Project,
 		name: project,
 		files: [
-			{ git: { url: "git@github.com:g2a-com/klio-lifecycle.git", rev: main, files: assets/executors/*/*.yaml } },
 			services/*/service.yaml,
 			environments/*/environment.yaml,
 		]
@@ -301,7 +300,6 @@ func Test_migrating_project_services_from_v1beta4_to_v2_0(t *testing.T) {
 	expected := testInput(`{
 		apiVersion: g2a-cli/v2.0, kind: Project, name: project,
 		files: [
-			{ git: { url: "git@github.com:g2a-com/klio-lifecycle.git", rev: main, files: assets/executors/*/*.yaml } },
 			service.yaml,
 			environments/*/environment.yaml,
 		]
@@ -322,7 +320,6 @@ func Test_migrating_project_environments_from_v1beta4_to_v2_0(t *testing.T) {
 	expected := testInput(`{
 		apiVersion: g2a-cli/v2.0, kind: Project, name: project,
 		files: [
-			{ git: { url: "git@github.com:g2a-com/klio-lifecycle.git", rev: main, files: assets/executors/*/*.yaml } },
 			services/*/service.yaml,
 			environment.yaml,
 		]

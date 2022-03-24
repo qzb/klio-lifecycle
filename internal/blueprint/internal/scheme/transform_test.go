@@ -255,11 +255,6 @@ func TestToInternal(t *testing.T) {
 				"name":       "test",
 				"files": []interface{}{
 					"glob",
-					map[string]interface{}{"git": map[string]interface{}{
-						"url":   "http://github.com/g2a-com/klio-lifecycle",
-						"rev":   "master",
-						"files": "assets/executors/*/*",
-					}},
 				},
 				"variables": map[string]interface{}{
 					"name": "value",
@@ -270,16 +265,7 @@ func TestToInternal(t *testing.T) {
 				"kind": "Project",
 				"name": "test",
 				"files": []interface{}{
-					map[string]interface{}{
-						"glob": "glob",
-					},
-					map[string]interface{}{
-						"git": map[string]interface{}{
-							"url": "http://github.com/g2a-com/klio-lifecycle",
-							"rev": "master",
-						},
-						"glob": "assets/executors/*/*",
-					},
+					"glob",
 				},
 				"variables": map[string]interface{}{
 					"name": "value",

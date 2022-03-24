@@ -170,19 +170,6 @@ func migrateProjectFromV1Beta4ToV2(rootNode *yaml.Node) error {
 	filesNode := createSequenceNode()
 	rootNode.Content = append(rootNode.Content, createStrScalarNode("files"), filesNode)
 
-	// FIXME: replace this remote with builtin executors.
-	filesNode.Content = append(filesNode.Content, createMappingNode(
-		createStrScalarNode("git"),
-		createMappingNode(
-			createStrScalarNode("url"),
-			createStrScalarNode("git@github.com:g2a-com/klio-lifecycle.git"),
-			createStrScalarNode("rev"),
-			createStrScalarNode("main"),
-			createStrScalarNode("files"),
-			createStrScalarNode("assets/executors/*/*.yaml"),
-		),
-	))
-
 	// Add name if there is none.
 	if idx := findMapKeyIndex(rootNode, "name"); idx == -1 {
 		// Position of the "name" field is fixed by parent function, so put it at

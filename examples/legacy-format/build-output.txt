@@ -1,22 +1,16 @@
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/builders/artifactory.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/builders/docker.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/builders/script.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/deployers/artifactory.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/deployers/helm3.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/deployers/script.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/pushers/artifactory.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/pushers/docker.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/pushers/script.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/taggers/custom.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/taggers/gitSha.yaml_klio_reset\
+_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/assets/executors/taggers/gitTag.yaml_klio_reset\
 _klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/project.yaml_klio_reset\
-_klio_log_level "spam"\_klio_tags []\refs/heads/master_klio_reset\
-_klio_log_level "verbose"\_klio_tags []\fetching commit git@github.com:g2a-com/klio-lifecycle.git from main_klio_reset\
-_klio_log_level "verbose"\_klio_tags []\From github.com:g2a-com/klio-lifecycle_klio_reset\
-_klio_log_level "verbose"\_klio_tags []\ * branch            main       -> FETCH_HEAD_klio_reset\
-_klio_log_level "debug"\_klio_tags []\checking out newly fetched version_klio_reset\
-_klio_log_level "spam"\_klio_tags []\HEAD is now at b238ace refactor: rewrite placeholders_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/builders/artifactory.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/builders/docker.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/builders/script.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/deployers/artifactory.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/deployers/helm3.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/deployers/script.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/pushers/artifactory.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/pushers/docker.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/pushers/script.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/taggers/custom.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/taggers/gitSha.yaml_klio_reset\
-_klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/.g2a/cache/cicd/git-repositories/git@github.com:g2a-com%2Fklio-lifecycle.git/main/assets/executors/taggers/gitTag.yaml_klio_reset\
 _klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/service.yaml_klio_reset\
 _klio_log_level "debug"\_klio_tags []\Loading file: /Users/qzb/Workspace/qzb/klio-lifecycle/examples/legacy-format/environment.yaml_klio_reset\
 _klio_log_level "spam"\_klio_tags ["service"]\Running tagger "custom"_klio_reset\

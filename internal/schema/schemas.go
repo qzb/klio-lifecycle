@@ -3160,96 +3160,16 @@ var SCHEMAS = map[string][]byte{
 		        },
 		        "files": {
 		          "description": "List of the configuration files to load.",
-		          "oneOf": [
-		            {
-		              "type": "array",
-		              "items": {
-		                "oneOf": [
-		                  {
-		                    "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                    "examples": [
-		                      "services/*/service.yaml",
-		                      "environments/*/environments.yaml"
-		                    ],
-		                    "type": "string",
-		                    "minLength": 1
-		                  },
-		                  {
-		                    "type": "object",
-		                    "additionalProperties": false,
-		                    "required": [
-		                      "git"
-		                    ],
-		                    "properties": {
-		                      "git": {
-		                        "description": "Files may be also fetched from another git repository.\n",
-		                        "type": "object",
-		                        "additionalProperties": false,
-		                        "required": [
-		                          "url",
-		                          "rev",
-		                          "files"
-		                        ],
-		                        "properties": {
-		                          "url": {
-		                            "examples": [
-		                              "https://github.com/g2a-com/cicd"
-		                            ],
-		                            "type": "string",
-		                            "minLength": 1
-		                          },
-		                          "rev": {
-		                            "type": "string",
-		                            "examples": [
-		                              "main"
-		                            ],
-		                            "minLength": 1
-		                          },
-		                          "files": {
-		                            "examples": [
-		                              "executors/*/*.yaml"
-		                            ],
-		                            "oneOf": [
-		                              {
-		                                "type": "array",
-		                                "items": {
-		                                  "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                                  "examples": [
-		                                    "services/*/service.yaml",
-		                                    "environments/*/environments.yaml"
-		                                  ],
-		                                  "type": "string",
-		                                  "minLength": 1
-		                                }
-		                              },
-		                              {
-		                                "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                                "examples": [
-		                                  "services/*/service.yaml",
-		                                  "environments/*/environments.yaml"
-		                                ],
-		                                "type": "string",
-		                                "minLength": 1
-		                              }
-		                            ]
-		                          }
-		                        }
-		                      }
-		                    }
-		                  }
-		                ]
-		              }
-		            },
-		            {
-		              "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		              "examples": [
-		                "services/*/service.yaml",
-		                "environments/*/environments.yaml"
-		              ],
-		              "type": "string",
-		              "minLength": 1
-		            }
-		          ]
+		          "type": "array",
+		          "items": {
+		            "description": "Paths to files may include wildcards like \"*\" which matches single path segment.\n",
+		            "examples": [
+		              "services/*/service.yaml",
+		              "environments/*/environments.yaml"
+		            ],
+		            "type": "string",
+		            "minLength": 1
+		          }
 		        },
 		        "variables": {
 		          "description": "Definitions of the variables to use in the configuration files. Names are case-insensitive.\n",
@@ -3393,76 +3313,13 @@ var SCHEMAS = map[string][]byte{
 		      },
 		      "$defs": {
 		        "glob": {
-		          "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
+		          "description": "Paths to files may include wildcards like \"*\" which matches single path segment.\n",
 		          "examples": [
 		            "services/*/service.yaml",
 		            "environments/*/environments.yaml"
 		          ],
 		          "type": "string",
 		          "minLength": 1
-		        },
-		        "gitGlob": {
-		          "type": "object",
-		          "additionalProperties": false,
-		          "required": [
-		            "git"
-		          ],
-		          "properties": {
-		            "git": {
-		              "description": "Files may be also fetched from another git repository.\n",
-		              "type": "object",
-		              "additionalProperties": false,
-		              "required": [
-		                "url",
-		                "rev",
-		                "files"
-		              ],
-		              "properties": {
-		                "url": {
-		                  "examples": [
-		                    "https://github.com/g2a-com/cicd"
-		                  ],
-		                  "type": "string",
-		                  "minLength": 1
-		                },
-		                "rev": {
-		                  "type": "string",
-		                  "examples": [
-		                    "main"
-		                  ],
-		                  "minLength": 1
-		                },
-		                "files": {
-		                  "examples": [
-		                    "executors/*/*.yaml"
-		                  ],
-		                  "oneOf": [
-		                    {
-		                      "type": "array",
-		                      "items": {
-		                        "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                        "examples": [
-		                          "services/*/service.yaml",
-		                          "environments/*/environments.yaml"
-		                        ],
-		                        "type": "string",
-		                        "minLength": 1
-		                      }
-		                    },
-		                    {
-		                      "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                      "examples": [
-		                        "services/*/service.yaml",
-		                        "environments/*/environments.yaml"
-		                      ],
-		                      "type": "string",
-		                      "minLength": 1
-		                    }
-		                  ]
-		                }
-		              }
-		            }
-		          }
 		        }
 		      }
 		    },
@@ -4771,96 +4628,16 @@ var SCHEMAS = map[string][]byte{
 		    },
 		    "files": {
 		      "description": "List of the configuration files to load.",
-		      "oneOf": [
-		        {
-		          "type": "array",
-		          "items": {
-		            "oneOf": [
-		              {
-		                "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                "examples": [
-		                  "services/*/service.yaml",
-		                  "environments/*/environments.yaml"
-		                ],
-		                "type": "string",
-		                "minLength": 1
-		              },
-		              {
-		                "type": "object",
-		                "additionalProperties": false,
-		                "required": [
-		                  "git"
-		                ],
-		                "properties": {
-		                  "git": {
-		                    "description": "Files may be also fetched from another git repository.\n",
-		                    "type": "object",
-		                    "additionalProperties": false,
-		                    "required": [
-		                      "url",
-		                      "rev",
-		                      "files"
-		                    ],
-		                    "properties": {
-		                      "url": {
-		                        "examples": [
-		                          "https://github.com/g2a-com/cicd"
-		                        ],
-		                        "type": "string",
-		                        "minLength": 1
-		                      },
-		                      "rev": {
-		                        "type": "string",
-		                        "examples": [
-		                          "main"
-		                        ],
-		                        "minLength": 1
-		                      },
-		                      "files": {
-		                        "examples": [
-		                          "executors/*/*.yaml"
-		                        ],
-		                        "oneOf": [
-		                          {
-		                            "type": "array",
-		                            "items": {
-		                              "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                              "examples": [
-		                                "services/*/service.yaml",
-		                                "environments/*/environments.yaml"
-		                              ],
-		                              "type": "string",
-		                              "minLength": 1
-		                            }
-		                          },
-		                          {
-		                            "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		                            "examples": [
-		                              "services/*/service.yaml",
-		                              "environments/*/environments.yaml"
-		                            ],
-		                            "type": "string",
-		                            "minLength": 1
-		                          }
-		                        ]
-		                      }
-		                    }
-		                  }
-		                }
-		              }
-		            ]
-		          }
-		        },
-		        {
-		          "description": "Paths to files may include wildecards like \"*\" which matches single path segment.\n",
-		          "examples": [
-		            "services/*/service.yaml",
-		            "environments/*/environments.yaml"
-		          ],
-		          "type": "string",
-		          "minLength": 1
-		        }
-		      ]
+		      "type": "array",
+		      "items": {
+		        "description": "Paths to files may include wildcards like \"*\" which matches single path segment.\n",
+		        "examples": [
+		          "services/*/service.yaml",
+		          "environments/*/environments.yaml"
+		        ],
+		        "type": "string",
+		        "minLength": 1
+		      }
 		    },
 		    "variables": {
 		      "description": "Definitions of the variables to use in the configuration files. Names are case-insensitive.\n",

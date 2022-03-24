@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/blueprint"
+	. "github.com/g2a-com/cicd/internal/blueprint"
 	"github.com/g2a-com/cicd/internal/flags"
 	"github.com/g2a-com/cicd/internal/object"
 	"github.com/g2a-com/cicd/internal/schema"
@@ -22,6 +23,8 @@ type options struct {
 }
 
 func main() {
+	var err error
+
 	// Exit nicely on panics
 	defer utils.HandlePanics()
 
@@ -45,32 +48,32 @@ func main() {
 	}
 
 	// Load blueprint
-	blueprint, err := blueprint.Load(blueprint.Opts{
-		Mode:        blueprint.BuildMode,
-		ProjectFile: opts.ProjectFile,
-		Params:      opts.Params,
-		Services:    opts.Services,
-		Preprocessors: []blueprint.Preprocessor{
+	blueprint := Blueprint{
+		Mode:     BuildMode,
+		Params:   opts.Params,
+		Services: opts.Services,
+		Preprocessors: []Preprocessor{
 			schema.Validate,
 			schema.Migrate,
 		},
-	})
-	if err != nil {
-		panic(err)
 	}
+	err = blueprint.Load(filepath.Join(utils.FindCommandDirectory(), "assets", "executors", "*", "*.yaml"))
+	assert(err == nil, err)
+	err = blueprint.Load(opts.ProjectFile)
+	assert(err == nil, err)
+	err = blueprint.Validate()
+	assert(err == nil, err)
+	err = blueprint.ExpandPlaceholders()
+	assert(err == nil, err)
 
 	// Change working directory
 	err = os.Chdir(blueprint.GetProject().Directory)
-	if err != nil {
-		panic(err)
-	}
+	assert(err == nil, err)
 
 	// Helper for getting executors
 	getExecutor := func(kind object.Kind, name string) object.Executor {
 		e, ok := blueprint.GetExecutor(kind, name)
-		if !ok {
-			panic(fmt.Errorf("%s %q does not exist", kind, name))
-		}
+		assert(ok, fmt.Errorf("%s %q does not exist", kind, name))
 		return e
 	}
 
@@ -95,9 +98,7 @@ func main() {
 					Service: service.Directory,
 				},
 			})
-			if err != nil {
-				panic(err)
-			}
+			assert(err == nil, err)
 
 			result.addTags(service, entry, res)
 		}
@@ -120,9 +121,7 @@ func main() {
 					Service: service.Directory,
 				},
 			})
-			if err != nil {
-				panic(err)
-			}
+			assert(err == nil, err)
 
 			result.addArtifacts(service, entry, res)
 		}
@@ -146,9 +145,7 @@ func main() {
 						Service: service.Directory,
 					},
 				})
-				if err != nil {
-					panic(err)
-				}
+				assert(err == nil, err)
 
 				result.addPushedArtifacts(service, entry, res)
 			}
@@ -163,5 +160,11 @@ func main() {
 		l.Print("Successfully built 1 service")
 	default:
 		l.Printf("Successfully built %v services", count)
+	}
+}
+
+func assert(condition bool, err interface{}) {
+	if !condition {
+		panic(err)
 	}
 }

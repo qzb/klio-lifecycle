@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/blueprint"
+	. "github.com/g2a-com/cicd/internal/blueprint"
 	"github.com/g2a-com/cicd/internal/flags"
 	"github.com/g2a-com/cicd/internal/object"
 	"github.com/g2a-com/cicd/internal/schema"
@@ -26,6 +27,8 @@ type options struct {
 }
 
 func main() {
+	var err error
+
 	// Exit nicely on panics
 	defer utils.HandlePanics()
 
@@ -49,27 +52,29 @@ func main() {
 	}
 
 	// Load blueprint
-	blueprint, err := blueprint.Load(blueprint.Opts{
-		Mode:        blueprint.DeployMode,
-		ProjectFile: opts.ProjectFile,
+	blueprint := Blueprint{
+		Mode:        DeployMode,
 		Environment: opts.Environment,
 		Tag:         opts.Tag,
 		Params:      opts.Params,
 		Services:    opts.Services,
-		Preprocessors: []blueprint.Preprocessor{
+		Preprocessors: []Preprocessor{
 			schema.Validate,
 			schema.Migrate,
 		},
-	})
-	if err != nil {
-		panic(err)
 	}
+	err = blueprint.Load(filepath.Join(utils.FindCommandDirectory(), "assets", "executors", "*", "*.yaml"))
+	assert(err == nil, err)
+	err = blueprint.Load(opts.ProjectFile)
+	assert(err == nil, err)
+	err = blueprint.Validate()
+	assert(err == nil, err)
+	err = blueprint.ExpandPlaceholders()
+	assert(err == nil, err)
 
 	// Change working directory
 	err = os.Chdir(blueprint.GetProject().Directory)
-	if err != nil {
-		panic(err)
-	}
+	assert(err == nil, err)
 
 	// Deploy
 	l.Printf(`Deploying to environment %q...`, opts.Environment)
@@ -88,9 +93,7 @@ func main() {
 
 		for _, entry := range service.Deploy.Releases {
 			e, ok := blueprint.GetExecutor(object.DeployerKind, entry.Type)
-			if !ok {
-				panic(fmt.Errorf("deployer %q does not exist", entry.Type))
-			}
+			assert(ok, fmt.Errorf("deployer %q does not exist", entry.Type))
 
 			s := script.New(e)
 			s.Logger = l
@@ -106,9 +109,7 @@ func main() {
 					Service:     service.Directory,
 				},
 			})
-			if err != nil {
-				panic(err)
-			}
+			assert(err == nil, err)
 
 			result.addReleases(service, entry, res)
 		}
@@ -122,5 +123,11 @@ func main() {
 		l.Printf("Successfully deployed 1 service to environment %q", opts.Environment)
 	default:
 		l.Printf("Successfully deployed %v services to environment %q", count, opts.Environment)
+	}
+}
+
+func assert(condition bool, err interface{}) {
+	if !condition {
+		panic(err)
 	}
 }

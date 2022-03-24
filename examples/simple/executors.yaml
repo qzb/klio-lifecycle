@@ -1,16 +1,7 @@
 ---
 apiVersion: g2a-cli/v2.0
-kind: Tagger
-name: custom
-schema:
-  type: string
-  minLength: 1
-script: |
-  addResult(input.spec)
----
-apiVersion: g2a-cli/v2.0
 kind: Builder
-name: docker
+name: custom-docker
 schema:
   type: object
   required:
@@ -26,7 +17,7 @@ script: |
 ---
 apiVersion: g2a-cli/v2.0
 kind: Pusher
-name: docker
+name: custom-docker
 schema:
   type: object
 # Since it's only an example, this builder doesn't do anything interesting.
@@ -35,7 +26,7 @@ script: |
 ---
 apiVersion: g2a-cli/v2.0
 kind: Deployer
-name: helm
+name: custom-helm
 schema:
   type: object
   required:
