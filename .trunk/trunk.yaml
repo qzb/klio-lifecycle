@@ -5,7 +5,7 @@ lint:
   enabled:
     - gitleaks@7.6.1
     - gofmt@1.16.7
-    - golangci-lint@1.42.1
+    - golangci-lint@1.45.2
     - markdownlint@0.29.0
     - prettier@2.4.1
     - shellcheck@0.7.2
