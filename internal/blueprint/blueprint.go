@@ -2,7 +2,6 @@ package blueprint
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -16,7 +15,7 @@ import (
 	"github.com/g2a-com/cicd/internal/placeholders"
 	log "github.com/g2a-com/klio-logger-go"
 	"github.com/hashicorp/go-multierror"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Mode string
@@ -59,19 +58,26 @@ func (b *Blueprint) init() error {
 }
 
 func (b *Blueprint) Validate() (err error) {
-	// Check conssitency of the blueprint (if there is only one project, if all releases have deployers, etc...)
-	err = b.checkConsistency()
-	if err != nil {
-		return err
+	for _, d := range b.documents {
+		e := d.Object.Validate(b)
+		if e != nil {
+			err = multierror.Append(err, e)
+		}
 	}
 
-	// Check artifacts, releases, etc match schemas enforced by executors
-	err = b.validateSpecsAgainstExecutorSchemas()
-	if err != nil {
-		return err
+	if b.Environment != "" {
+		if b.GetObject(object.EnvironmentKind, b.Environment) == nil {
+			err = multierror.Append(err, fmt.Errorf("environment %q does not exist, available environments: %s", b.Environment, strings.Join(b.getEnvironmentNames(), ", ")))
+		}
 	}
 
-	return nil
+	for _, name := range b.getServiceNames() {
+		if b.GetObject(object.ServiceKind, name) == nil {
+			err = multierror.Append(err, fmt.Errorf("service %q does not exist, available services: %s", name, strings.Join(b.getServiceNames(), ", ")))
+		}
+	}
+
+	return err
 }
 
 func (b *Blueprint) Load(glob string) error {
@@ -111,7 +117,7 @@ func (b *Blueprint) Load(glob string) error {
 				project, ok := doc.Object.(object.Project)
 				if ok {
 					for _, entry := range project.Files {
-						globs = append(globs, path.Join(project.Directory, entry))
+						globs = append(globs, path.Join(project.Directory(), entry))
 					}
 				}
 			}
@@ -133,21 +139,21 @@ func (b *Blueprint) GetProject() object.Project {
 
 // GetEnvironment gets Executor object by kind and name
 func (b *Blueprint) GetExecutor(kind object.Kind, name string) (object.Executor, bool) {
-	d, ok1 := b.getObject(kind, name)
-	e, ok2 := d.(object.Executor)
-	return e, ok1 && ok2
+	o := b.GetObject(kind, name)
+	e, ok := o.(object.Executor)
+	return e, o != nil && ok
 }
 
 // GetEnvironment gets Service object by the name
 func (b *Blueprint) GetService(name string) (object.Service, bool) {
-	d, ok := b.getObject(object.ServiceKind, name)
-	return d.(object.Service), ok
+	o := b.GetObject(object.ServiceKind, name)
+	return o.(object.Service), o != nil
 }
 
 // GetEnvironment gets Environment object by the name
 func (b *Blueprint) GetEnvironment(name string) (object.Environment, bool) {
-	d, ok := b.getObject(object.EnvironmentKind, name)
-	return d.(object.Environment), ok
+	o := b.GetObject(object.EnvironmentKind, name)
+	return o.(object.Environment), o != nil
 }
 
 // ListServices returns all service objects in the blueprint
@@ -181,68 +187,6 @@ func (b *Blueprint) addDocuments(documents ...*document) error {
 	return nil
 }
 
-func (b *Blueprint) checkConsistency() error {
-	var err error
-
-	for _, d := range b.documents {
-		switch d.Kind {
-		case object.ServiceKind:
-			// check taggers
-			for _, t := range d.Object.(object.Service).Build.Tags {
-				_, ok := b.getObject(object.TaggerKind, t.Type)
-				if !ok {
-					err = multierror.Append(err, fmt.Errorf("missing tagger %q used by service %q defined in the file:\n\t  %s", t.Type, d.Name, d.FilePath))
-				}
-			}
-			// check builders
-			for _, a := range d.Object.(object.Service).Build.Artifacts.ToBuild {
-				_, ok := b.getObject(object.BuilderKind, a.Type)
-				if !ok {
-					err = multierror.Append(err, fmt.Errorf("missing builder %q used by service %q defined in the file:\n\t  %s", a.Type, d.Name, d.FilePath))
-				}
-			}
-			// check pushers
-			for _, a := range d.Object.(object.Service).Build.Artifacts.ToPush {
-				_, ok := b.getObject(object.PusherKind, a.Type)
-				if !ok {
-					err = multierror.Append(err, fmt.Errorf("missing pusher %q used by service %q defined in the file:\n\t  %s", a.Type, d.Name, d.FilePath))
-				}
-			}
-			// check deployers
-			for _, r := range d.Object.(object.Service).Deploy.Releases {
-				_, ok := b.getObject(object.DeployerKind, r.Type)
-				if !ok {
-					err = multierror.Append(err, fmt.Errorf("missing deployer %q used by service %q defined in the file:\n\t  %s", r.Type, d.Name, d.FilePath))
-				}
-			}
-		case object.EnvironmentKind:
-			// check services
-			for _, name := range d.Object.(object.Environment).DeployServices {
-				_, ok := b.getObject(object.ServiceKind, name)
-				if !ok {
-					err = multierror.Append(err, fmt.Errorf("missing service %q deployed to environment %q defined in the file:\n\t  %s", name, d.Name, d.FilePath))
-				}
-			}
-		}
-
-		for _, name := range b.getServiceNames() {
-			_, ok := b.getObject(object.ServiceKind, name)
-			if !ok {
-				err = multierror.Append(err, fmt.Errorf("service %q does not exist, available services: %s", name, strings.Join(b.getServiceNames(), ", ")))
-			}
-		}
-
-		if b.Environment != "" {
-			_, ok := b.getObject(object.EnvironmentKind, b.Environment)
-			if !ok {
-				err = multierror.Append(err, fmt.Errorf("environment %q does not exist, available environments: %s", b.Environment, strings.Join(b.getEnvironmentNames(), ", ")))
-			}
-		}
-	}
-
-	return err
-}
-
 func (b *Blueprint) ExpandPlaceholders() (err error) {
 	project := b.GetProject()
 
@@ -254,13 +198,13 @@ func (b *Blueprint) ExpandPlaceholders() (err error) {
 
 		values := map[string]interface{}{
 			"Project": map[string]interface{}{
-				"Dir":  project.Directory,
-				"Name": project.Name,
+				"Dir":  project.Directory(),
+				"Name": project.Name(),
 				"Vars": project.Variables,
 			},
 			"Service": map[string]interface{}{
-				"Dir":  service.Directory,
-				"Name": service.Name,
+				"Dir":  service.Directory(),
+				"Name": service.Name(),
 			},
 			"Params": b.Params,
 		}
@@ -268,8 +212,8 @@ func (b *Blueprint) ExpandPlaceholders() (err error) {
 		if b.Environment != "" {
 			environment, _ := b.GetEnvironment(b.Environment)
 			values["Environment"] = map[string]interface{}{
-				"Dir":  environment.Directory,
-				"Name": environment.Name,
+				"Dir":  environment.Directory(),
+				"Name": environment.Name(),
 				"Vars": environment.Variables,
 			}
 		}
@@ -301,56 +245,13 @@ func (b *Blueprint) ExpandPlaceholders() (err error) {
 	return nil
 }
 
-func (b *Blueprint) validateSpecsAgainstExecutorSchemas() error {
-	ctx := context.Background()
-
-	var err error
-
-	validate := func(service *document, executor *document, spec interface{}) {
-		schema := executor.Object.(object.Executor).Schema
-		result := schema.Validate(ctx, spec)
-
-		if len(*result.Errs) > 0 {
-			for _, e := range *result.Errs {
-				err = multierror.Append(err, fmt.Errorf(
-					"%s contains invalid configuration for %s:\n\t  %s\n\t  Definition files:\n\t    %s\n\t    %s",
-					service.DisplayName, executor.DisplayName, e, service.FilePath, executor.FilePath,
-				))
-			}
-		}
-	}
-
-	for _, doc := range b.documents {
-		if doc.Kind != object.ServiceKind {
-			continue
-		}
-
-		service := doc.Object.(object.Service)
-
-		for _, entry := range service.Build.Tags {
-			validate(doc, b.documents[string(object.TaggerKind)+"/"+entry.Type], entry.Spec)
-		}
-		for _, entry := range service.Build.Artifacts.ToBuild {
-			validate(doc, b.documents[string(object.BuilderKind)+"/"+entry.Type], entry.Spec)
-		}
-		for _, entry := range service.Build.Artifacts.ToPush {
-			validate(doc, b.documents[string(object.PusherKind)+"/"+entry.Type], entry.Spec)
-		}
-		for _, entry := range service.Deploy.Releases {
-			validate(doc, b.documents[string(object.DeployerKind)+"/"+entry.Type], entry.Spec)
-		}
-	}
-
-	return err
-}
-
-func (b *Blueprint) getObject(kind object.Kind, name string) (interface{}, bool) {
+func (b *Blueprint) GetObject(kind object.Kind, name string) object.Object {
 	key := string(kind) + "/" + name
 	d, ok := b.documents[key]
 	if !ok {
-		return nil, false
+		return nil
 	}
-	return d.Object, true
+	return d.Object
 }
 
 func (b *Blueprint) getServiceNames() (names []string) {
@@ -396,7 +297,7 @@ func (b *Blueprint) readFile(filePath string, mode Mode) ([]*document, error) {
 	decoder := yaml.NewDecoder(reader)
 
 	for i := 0; true; i++ {
-		var content interface{}
+		var content yaml.Node
 
 		err := decoder.Decode(&content)
 		if err != nil {
@@ -406,7 +307,7 @@ func (b *Blueprint) readFile(filePath string, mode Mode) ([]*document, error) {
 			break
 		}
 
-		doc, err := newDocument(filePath, i, mode, content)
+		doc, err := newDocument(filePath, i, mode, &content)
 		if err != nil {
 			return nil, fmt.Errorf(`file "%s" contains invalid document: %s`, filePath, err)
 		}

@@ -67,7 +67,7 @@ func main() {
 	assert(err == nil, err)
 
 	// Change working directory
-	err = os.Chdir(blueprint.GetProject().Directory)
+	err = os.Chdir(blueprint.GetProject().Directory())
 	assert(err == nil, err)
 
 	// Helper for getting executors
@@ -79,7 +79,7 @@ func main() {
 
 	// Build
 	for _, service := range blueprint.ListServices() {
-		l := l.WithTags(service.Name)
+		l := l.WithTags(service.Name())
 
 		if len(service.Build.Artifacts.ToBuild) == 0 {
 			l.WithLevel(log.VerboseLevel).Print("No artifacts to build")
@@ -94,8 +94,8 @@ func main() {
 			res, err := s.Run(TaggerInput{
 				Spec: entry.Spec,
 				Dirs: Dirs{
-					Project: blueprint.GetProject().Directory,
-					Service: service.Directory,
+					Project: blueprint.GetProject().Directory(),
+					Service: service.Directory(),
 				},
 			})
 			assert(err == nil, err)
@@ -117,8 +117,8 @@ func main() {
 				Spec: entry.Spec,
 				Tags: result.getTags(service),
 				Dirs: Dirs{
-					Project: blueprint.GetProject().Directory,
-					Service: service.Directory,
+					Project: blueprint.GetProject().Directory(),
+					Service: service.Directory(),
 				},
 			})
 			assert(err == nil, err)
@@ -130,7 +130,7 @@ func main() {
 	// Push artifacts
 	if opts.Push {
 		for _, service := range blueprint.ListServices() {
-			l := l.WithTags("push", service.Name)
+			l := l.WithTags("push", service.Name())
 
 			for _, entry := range service.Build.Artifacts.ToPush {
 				s := script.New(getExecutor(object.PusherKind, entry.Type))
@@ -141,8 +141,8 @@ func main() {
 					Tags:      result.getTags(service),
 					Artifacts: result.getArtifacts(service, entry),
 					Dirs: Dirs{
-						Project: blueprint.GetProject().Directory,
-						Service: service.Directory,
+						Project: blueprint.GetProject().Directory(),
+						Service: service.Directory(),
 					},
 				})
 				assert(err == nil, err)

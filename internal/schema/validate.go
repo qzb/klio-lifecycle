@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/icza/dyno"
 	"github.com/qri-io/jsonschema"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func Validate(input []byte) ([]byte, error) {

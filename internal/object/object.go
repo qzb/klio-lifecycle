@@ -3,37 +3,97 @@ package object
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"reflect"
+	"strings"
 
+	"github.com/g2a-com/cicd/internal/object/internal/scheme"
 	"github.com/mitchellh/mapstructure"
+	"gopkg.in/yaml.v3"
 )
 
-func NewObject(kind Kind, dir string, content interface{}) (interface{}, error) {
-	switch kind {
+type Object interface {
+	Metadata() Metadata
+	Name() string
+	Kind() Kind
+	DisplayName() string
+	Directory() string
+	Validate(ObjectCollection) error
+}
+
+type ObjectCollection interface {
+	GetObject(kind Kind, name string) Object
+}
+
+type GenericObject struct {
+	metadata Metadata
+	Data     struct {
+		Kind Kind
+		Name string
+	} `mapstructure:",squash" yaml:",inline"`
+}
+
+func (o GenericObject) Name() string {
+	return o.Data.Name
+}
+
+func (o GenericObject) Kind() Kind {
+	return o.Data.Kind
+}
+
+func (o GenericObject) Metadata() Metadata {
+	return o.metadata
+}
+
+func (o GenericObject) Directory() string {
+	return filepath.Dir(o.metadata.Filename())
+}
+
+func (o GenericObject) DisplayName() string {
+	return fmt.Sprintf("%s %q", strings.ToLower(string(o.Kind())), o.Name())
+}
+
+func (o GenericObject) Validate(ObjectCollection) error {
+	return nil
+}
+
+func NewObject(filename string, data *yaml.Node) (Object, error) {
+	var obj GenericObject
+	err := data.Decode(&obj)
+	if err != nil {
+		return nil, err
+	}
+
+	switch obj.Kind() {
 	case ProjectKind:
-		obj := Project{Directory: dir}
-		err := decode(content, &obj)
-		return obj, err
+		return NewProject(filename, data)
 	case ServiceKind:
-		obj := Service{Directory: dir}
-		err := decode(content, &obj)
-		return obj, err
+		return NewService(filename, data)
 	case EnvironmentKind:
-		obj := Environment{Directory: dir}
-		err := decode(content, &obj)
-		return obj, err
+		return NewEnvironment(filename, data)
 	case BuilderKind, DeployerKind, PusherKind, TaggerKind:
-		obj := Executor{Directory: dir}
-		err := decode(content, &obj)
-		return obj, err
+		return NewExecutor(filename, data)
 	default:
-		return nil, fmt.Errorf("unknown kind %s", kind)
+		return nil, fmt.Errorf("unknown kind %q", obj.Kind())
 	}
 }
 
-func decode(content interface{}, result interface{}) error {
+func decode(data *yaml.Node, result interface{}) (err error) {
+	var aux interface{}
+
+	err = data.Decode(&aux)
+	if err != nil {
+		return
+	}
+
+	aux, err = scheme.ToInternal(aux)
+	if err != nil {
+		return
+	}
+
 	decoderConfig := &mapstructure.DecoderConfig{
-		ErrorUnused: true,
+		ErrorUnused: false,
+		Squash:      true,
 		Result:      result,
 		DecodeHook: func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
 			if f.Kind() != reflect.String {
@@ -56,5 +116,5 @@ func decode(content interface{}, result interface{}) error {
 		return err
 	}
 
-	return decoder.Decode(content)
+	return decoder.Decode(aux)
 }

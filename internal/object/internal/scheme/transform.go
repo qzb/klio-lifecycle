@@ -146,11 +146,6 @@ func get(v interface{}, path ...interface{}) interface{} {
 	return val
 }
 
-func has(v interface{}, path ...interface{}) bool {
-	_, err := dyno.Get(v, path...)
-	return err == nil
-}
-
 func or(v1 interface{}, v2 interface{}) interface{} {
 	if v1 != nil {
 		return v1

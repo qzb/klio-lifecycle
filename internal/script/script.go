@@ -2,7 +2,6 @@ package script
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/d5/tengo/v2"
 	"github.com/g2a-com/cicd/internal/object"
@@ -23,7 +22,7 @@ func New(executor object.Executor) *Script {
 }
 
 func (s *Script) Run(input interface{}) (results []string, err error) {
-	displayName := strings.ToLower(fmt.Sprintf("%s %q", s.executor.Kind, s.executor.Name))
+	displayName := s.executor.DisplayName()
 
 	s.Logger.WithLevel(logger.SpamLevel).Printf("Running %s", displayName)
 

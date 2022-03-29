@@ -73,7 +73,7 @@ func main() {
 	assert(err == nil, err)
 
 	// Change working directory
-	err = os.Chdir(blueprint.GetProject().Directory)
+	err = os.Chdir(blueprint.GetProject().Directory())
 	assert(err == nil, err)
 
 	// Deploy
@@ -82,14 +82,14 @@ func main() {
 	environment, _ := blueprint.GetEnvironment(opts.Environment)
 
 	for _, service := range blueprint.ListServices() {
-		l := l.WithTags(service.Name)
+		l := l.WithTags(service.Name())
 
 		if len(service.Deploy.Releases) == 0 {
 			l.WithLevel(log.VerboseLevel).Print("No releases to deploy")
 			continue
 		}
 
-		l.Printf(`Deploying service %q...`, service.Name)
+		l.Printf(`Deploying service %q...`, service.Name())
 
 		for _, entry := range service.Deploy.Releases {
 			e, ok := blueprint.GetExecutor(object.DeployerKind, entry.Type)
@@ -104,9 +104,9 @@ func main() {
 				DryRun: opts.DryRun,
 				Wait:   opts.Wait,
 				Dirs: Dirs{
-					Project:     blueprint.GetProject().Directory,
-					Environment: environment.Directory,
-					Service:     service.Directory,
+					Project:     blueprint.GetProject().Directory(),
+					Environment: environment.Directory(),
+					Service:     service.Directory(),
 				},
 			})
 			assert(err == nil, err)

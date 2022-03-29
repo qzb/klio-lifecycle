@@ -1,12 +1,10 @@
 package blueprint
 
 import (
-	"fmt"
 	"path/filepath"
 
-	"github.com/g2a-com/cicd/internal/blueprint/internal/scheme"
 	"github.com/g2a-com/cicd/internal/object"
-	"github.com/icza/dyno"
+	"gopkg.in/yaml.v3"
 )
 
 type document struct {
@@ -16,42 +14,21 @@ type document struct {
 	Name        string
 	APIVersion  string
 	DisplayName string
-	Object      interface{}
+	Object      object.Object
 }
 
-func newDocument(filePath string, index int, mode Mode, content interface{}) (*document, error) {
-	filePath, err := filepath.Abs(filePath)
+func newDocument(filename string, index int, mode Mode, data *yaml.Node) (*document, error) {
+	filename, err := filepath.Abs(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	apiVersion, err := dyno.GetString(content, "apiVersion")
+	obj, err := object.NewObject(filename, data)
 	if err != nil {
 		return nil, err
 	}
 
-	kind, err := dyno.GetString(content, "kind")
-	if err != nil {
-		return nil, err
-	}
-
-	name, err := dyno.GetString(content, "name")
-	if err != nil && kind != "Project" {
-		return nil, err
-	}
-
-	normalized, err := scheme.ToInternal(content)
-	if err != nil {
-		return nil, err
-	}
-
-	obj, err := object.NewObject(object.Kind(kind), filepath.Dir(filePath), normalized)
-	if err != nil {
-		return nil, err
-	}
-
-	if kind == string(object.ServiceKind) {
-		service := obj.(object.Service)
+	if service, ok := obj.(object.Service); ok {
 		if mode != BuildMode {
 			service.Build.Artifacts.ToBuild = []object.ServiceEntry{}
 			service.Build.Artifacts.ToPush = []object.ServiceEntry{}
@@ -64,11 +41,10 @@ func newDocument(filePath string, index int, mode Mode, content interface{}) (*d
 	}
 
 	return &document{
-		FilePath:    filePath,
-		APIVersion:  apiVersion,
-		Kind:        object.Kind(kind),
-		Name:        name,
-		DisplayName: fmt.Sprintf("%s %q", kind, name),
+		FilePath:    filename,
+		Kind:        obj.Kind(),
+		Name:        obj.Name(),
+		DisplayName: obj.DisplayName(),
 		Object:      obj,
 	}, nil
 }
